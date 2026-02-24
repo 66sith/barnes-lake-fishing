@@ -1345,7 +1345,43 @@ function initMap() {
         map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
         map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
         state.mapInstance = map;
+        window._map = map;
     } catch(e) { console.error('Map init error:', e); }
+}
+
+function setMapStyle(style) {
+    const map = window._map;
+    if (!map) return;
+
+    const tileSources = {
+        sat: {
+            type: 'raster',
+            tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+            tileSize: 256, maxzoom: 19
+        },
+        topo: {
+            type: 'raster',
+            tiles: ['https://tile.opentopomap.org/{z}/{x}/{y}.png'],
+            tileSize: 256, maxzoom: 17,
+            attribution: '© OpenTopoMap'
+        },
+        hyb: {
+            type: 'raster',
+            tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+            tileSize: 256, maxzoom: 19
+        }
+    };
+
+    if (map.getLayer('base-tiles')) map.removeLayer('base-tiles');
+    if (map.getSource('base-source')) map.removeSource('base-source');
+
+    map.addSource('base-source', tileSources[style]);
+    map.addLayer({ id: 'base-tiles', type: 'raster', source: 'base-source' },
+        map.getStyle().layers[0]?.id);
+
+    document.querySelectorAll('.map-mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === style);
+    });
 }
 
 function renderPremium() {

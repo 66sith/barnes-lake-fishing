@@ -41,9 +41,14 @@
     ],
     "Stop": [
       {
-        "type": "command",
-        "command": "cd ~/barnes-lake-fishing && if ! git diff --quiet 2>/dev/null; then git add -A && git commit -m 'AUTO-SAVE: session ending with uncommitted work' && git push origin main 2>/dev/null && echo '🔒 Auto-saved and pushed uncommitted work'; fi",
-        "timeout": 15
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd ~/barnes-lake-fishing && if ! git diff --quiet 2>/dev/null; then git add -A && git commit -m 'AUTO-SAVE: session ending with uncommitted work' && git push origin main 2>/dev/null && echo '🔒 Auto-saved and pushed uncommitted work'; fi",
+            "timeout": 15
+          }
+        ]
       }
     ]
   }
