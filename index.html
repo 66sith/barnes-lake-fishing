@@ -1403,6 +1403,7 @@ function fmtHour(h) {
 
 // ─── Rendering ────────────────────────────────────────────────────────────────
 function renderForecast() {
+    if (state.dataLoading) { renderShimmer(); return; }
     const el = document.getElementById('screen-home');
     const lake = state.currentLake;
     const w = state.weather;
@@ -1900,10 +1901,41 @@ function selectLake(id) {
 // ─── Init ─────────────────────────────────────────────────────────────────────
 async function loadData() {
     const lake = state.currentLake;
+    state.dataLoading = true;
+    state.weather = null;
     state.solunar = computeSolunar(lake.lat, lake.lng);
+    if (state.currentScreen === 'home') renderForecast();
     state.weather = await fetchWeather(lake.lat, lake.lng);
+    state.dataLoading = false;
     if (state.currentScreen === 'home') renderForecast();
     else if (state.currentScreen === 'species') renderSpecies();
+}
+
+function renderShimmer() {
+    const el = document.getElementById('screen-home');
+    el.innerHTML = `
+        <div class="glass shimmer-card mt-12">
+            <div class="shimmer-score-row">
+                <div style="flex:1">
+                    <div class="shimmer-block shimmer-row" style="width:60%;margin-bottom:8px"></div>
+                    <div class="shimmer-block shimmer-row" style="width:80%;margin-bottom:8px"></div>
+                    <div class="shimmer-block shimmer-row" style="width:50%"></div>
+                </div>
+                <div class="shimmer-block shimmer-circle"></div>
+            </div>
+            <div class="shimmer-block" style="height:44px;border-radius:10px;margin-top:16px"></div>
+        </div>
+        <div class="glass shimmer-card">
+            <div class="shimmer-block shimmer-row" style="width:40%;margin-bottom:16px"></div>
+            <div class="shimmer-hourly">
+                ${Array(8).fill(0).map(() => '<div class="shimmer-block shimmer-hourly-cell"></div>').join('')}
+            </div>
+        </div>
+        <div class="glass shimmer-card">
+            <div class="shimmer-block shimmer-row" style="width:40%;margin-bottom:16px"></div>
+            ${Array(4).fill(0).map(() => '<div class="shimmer-block shimmer-row" style="margin-bottom:10px"></div>').join('')}
+        </div>
+    `;
 }
 
 // ═══ TOKEN GATE SYSTEM ═══════════════════════════════════════════════════════
