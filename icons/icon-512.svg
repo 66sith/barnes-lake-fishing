@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c1220"/>
+      <stop offset="100%" stop-color="#1e3a5f"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4a90d9" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#4a90d9" stop-opacity="0.08"/>
+    </linearGradient>
+    <linearGradient id="fish-body" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e8eef5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="102" fill="url(#bg)"/>
+
+  <!-- Subtle water waves -->
+  <path d="M0,345 Q64,328 128,345 Q192,362 256,345 Q320,328 384,345 Q448,362 512,345 L512,512 L0,512 Z" fill="url(#water)"/>
+  <path d="M0,375 Q64,360 128,375 Q192,390 256,375 Q320,360 384,375 Q448,390 512,375 L512,512 L0,512 Z" fill="url(#water)"/>
+  <path d="M0,400 Q64,388 128,400 Q192,412 256,400 Q320,388 384,400 Q448,412 512,400 L512,512 L0,512 Z" fill="url(#water)" opacity="0.5"/>
+
+  <!-- Fish icon -->
+  <g transform="translate(256,200) scale(1.1)">
+    <!-- Body -->
+    <ellipse cx="0" cy="0" rx="85" ry="42" fill="url(#fish-body)" fill-opacity="0.95"/>
+    <!-- Tail -->
+    <polygon points="68,-42 116,0 68,42" fill="url(#fish-body)" fill-opacity="0.95"/>
+    <!-- Tail detail -->
+    <line x1="78" y1="-25" x2="78" y2="25" stroke="#1e3a5f" stroke-width="1.5" stroke-opacity="0.2"/>
+    <!-- Eye -->
+    <circle cx="-32" cy="-8" r="12" fill="#1e3a5f"/>
+    <circle cx="-29" cy="-10" r="4" fill="#ffffff" fill-opacity="0.6"/>
+    <!-- Gill -->
+    <path d="M-10,-30 Q-22,0 -10,30" stroke="#1e3a5f" stroke-width="4" fill="none" stroke-linecap="round" stroke-opacity="0.6"/>
+    <!-- Dorsal fin -->
+    <path d="M-15,-40 Q10,-70 40,-40" fill="#ffffff" fill-opacity="0.8"/>
+    <!-- Pectoral fin -->
+    <path d="M-5,28 Q15,58 40,36" fill="#ffffff" fill-opacity="0.7"/>
+    <!-- Scales hint -->
+    <path d="M10,-18 Q20,-10 10,-2" stroke="#1e3a5f" stroke-width="1" fill="none" stroke-opacity="0.15"/>
+    <path d="M25,-16 Q35,-8 25,0" stroke="#1e3a5f" stroke-width="1" fill="none" stroke-opacity="0.15"/>
+    <path d="M40,-14 Q50,-6 40,2" stroke="#1e3a5f" stroke-width="1" fill="none" stroke-opacity="0.15"/>
+    <path d="M10,2 Q20,10 10,18" stroke="#1e3a5f" stroke-width="1" fill="none" stroke-opacity="0.12"/>
+    <path d="M25,0 Q35,8 25,16" stroke="#1e3a5f" stroke-width="1" fill="none" stroke-opacity="0.12"/>
+  </g>
+
+  <!-- "BL" text -->
+  <text x="256" y="420" text-anchor="middle" font-family="system-ui, -apple-system, Helvetica, Arial, sans-serif" font-size="72" font-weight="700" fill="#ffffff" fill-opacity="0.9" letter-spacing="10">BL</text>
+</svg>

@@ -1,0 +1,4 @@
+.DS_Store
+*.pre-rebuild
+node_modules/
+.env
