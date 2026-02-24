@@ -670,6 +670,50 @@ body {
     text-align: center; max-width: 300px; line-height: 1.5;
 }
 
+/* ─── Species Detail ──────────────────────────────────────────── */
+.species-detail-overlay {
+    position: fixed; inset: 0; z-index: 260;
+    background: rgba(0,0,0,0.75); backdrop-filter: blur(10px);
+    display: none; flex-direction: column; justify-content: flex-end;
+}
+.species-detail-overlay.open { display: flex; animation: fadeIn 0.2s var(--ease); }
+.species-detail-sheet {
+    background: var(--bg-mid); border-radius: 20px 20px 0 0;
+    padding: 24px 20px 40px; max-height: 88vh; overflow-y: auto;
+    animation: slideUp 0.3s var(--spring);
+}
+.species-detail-close {
+    position: absolute; top: 16px; right: 16px;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+    border-radius: 50%; width: 32px; height: 32px; display: flex;
+    align-items: center; justify-content: center; cursor: pointer;
+    color: var(--text-muted); font-size: 16px;
+}
+.species-detail-hero { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+.species-detail-avatar {
+    width: 64px; height: 64px; border-radius: 18px;
+    display: flex; align-items: center; justify-content: center; font-size: 36px; flex-shrink: 0;
+}
+.species-detail-name { font-family: var(--font-display); font-size: 22px; font-weight: 800; }
+.species-detail-section { margin-bottom: 18px; }
+.species-detail-section-title {
+    font-size: 10px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--gold); margin-bottom: 8px;
+}
+.species-bait-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.species-bait-chip {
+    padding: 7px 14px; border-radius: 20px;
+    background: var(--gold-glow); border: 1px solid rgba(212,168,67,0.25);
+    color: var(--gold-light); font-size: 13px;
+}
+.species-info-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+}
+.species-info-row:last-child { border-bottom: none; }
+.species-info-label { color: var(--text-secondary); }
+.species-info-value { font-weight: 600; color: var(--text-primary); }
+
 /* ─── Catch Modal ─────────────────────────────────────────────── */
 .catch-modal {
     position: fixed; inset: 0; z-index: 250;
@@ -879,6 +923,14 @@ body {
     <!-- Lake Selector Modal -->
     <div id="lake-modal">
         <div class="lake-sheet" id="lake-sheet"></div>
+    </div>
+
+    <!-- Species Detail -->
+    <div id="species-detail-overlay" class="species-detail-overlay" onclick="closeSpeciesDetail(event)">
+        <div class="species-detail-sheet" id="species-detail-sheet" style="position:relative">
+            <button class="species-detail-close" onclick="closeSpeciesDetail()">✕</button>
+            <div id="species-detail-content"></div>
+        </div>
     </div>
 
     <!-- Log Catch Modal -->
@@ -1408,7 +1460,7 @@ function renderSpecies() {
         ${species.map(sp => {
             const c = getScoreHex(sp.score);
             const locked = sp.premium;
-            return `<div class="glass" style="padding:16px;margin-top:8px;${locked?'opacity:0.6':''}position:relative;overflow:hidden">
+            return `<div class="glass" onclick="openSpeciesDetail('${sp.name}')" style="padding:16px;margin-top:8px;${locked?'opacity:0.6':''}position:relative;overflow:hidden;cursor:pointer">
                 ${locked ? '<div style="position:absolute;top:10px;right:10px"><span class="pro-badge"><svg viewBox="0 0 24 24"><path d="M2 4l3 12h14l3-12-5.5 5L12 2l-4.5 5L2 4z"/></svg> PRO</span></div>' : ''}
                 <div class="species-card">
                     <div class="species-avatar" style="background:${c}15;border:2px solid ${c}40">${sp.emoji}</div>
@@ -1852,6 +1904,57 @@ function init() {
     } else {
         showGate();
     }
+}
+
+// ─── Species Detail ───────────────────────────────────────────────────────────
+function openSpeciesDetail(name) {
+    const sp = (state.speciesScores.length ? state.speciesScores : SPECIES_DB).find(function(s) { return s.name === name; });
+    if (!sp) return;
+    const c = getScoreHex(sp.score || 50);
+    const sol = state.solunar;
+    const bestPeak = sol ? (function() {
+        const now = new Date().getHours() + new Date().getMinutes()/60;
+        const major = sol.majorPeaks || [];
+        const minor = sol.minorPeaks || [];
+        const allPeaks = major.map(function(p) { return {h:p,type:'Major'}; }).concat(minor.map(function(p) { return {h:p,type:'Minor'}; }));
+        const future = allPeaks.filter(function(p) { return p.h > now; }).sort(function(a,b){return a.h-b.h;});
+        if (!future.length) return 'See forecast';
+        const p = future[0];
+        const sh = Math.floor(p.h), sm = Math.round((p.h-sh)*60);
+        return p.type + ' at ' + (sh%12||12) + ':' + sm.toString().padStart(2,'0') + ' ' + (sh<12?'AM':'PM');
+    })() : 'See forecast';
+
+    document.getElementById('species-detail-content').innerHTML = `
+        <div class="species-detail-hero">
+            <div class="species-detail-avatar" style="background:${c}18;border:2px solid ${c}40">${sp.emoji}</div>
+            <div>
+                <div class="species-detail-name">${sp.name}</div>
+                <span class="species-score-badge" style="color:${c};background:${c}18;font-size:15px">${sp.score || 50} — ${getScoreLabel(sp.score || 50)}</span>
+            </div>
+        </div>
+        <div class="species-detail-section">
+            <div class="species-detail-section-title">Technique</div>
+            <div style="font-size:13px;color:var(--text-secondary);line-height:1.6">${sp.technique}</div>
+        </div>
+        <div class="species-detail-section">
+            <div class="species-detail-section-title">Top Baits & Lures</div>
+            <div class="species-bait-chips">${sp.baits.map(function(b){return `<span class="species-bait-chip">${b}</span>`;}).join('')}</div>
+        </div>
+        <div class="species-detail-section">
+            <div class="species-detail-section-title">Targeting Info</div>
+            <div class="glass" style="padding:0 12px">
+                <div class="species-info-row"><span class="species-info-label">Target Depth</span><span class="species-info-value">${sp.depth}</span></div>
+                <div class="species-info-row"><span class="species-info-label">Temperature</span><span class="species-info-value">${sp.temp}</span></div>
+                <div class="species-info-row"><span class="species-info-label">Pattern</span><span class="species-info-value">${sp.pattern}</span></div>
+                <div class="species-info-row"><span class="species-info-label">Best Time Today</span><span class="species-info-value" style="color:var(--gold)">${bestPeak}</span></div>
+            </div>
+        </div>
+    `;
+    document.getElementById('species-detail-overlay').classList.add('open');
+}
+function closeSpeciesDetail(event) {
+    if (event && event.target !== document.getElementById('species-detail-overlay')) return;
+    document.getElementById('species-detail-overlay').classList.remove('open');
 }
 
 // ─── Catch Log ────────────────────────────────────────────────────────────────
