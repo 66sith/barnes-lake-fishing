@@ -1499,9 +1499,12 @@ function getTokenRemainingUses(token) {
 function validateToken() {
     const input = document.getElementById('gate-token');
     const errorEl = document.getElementById('gate-error');
-    const token = input.value.trim().toUpperCase();
+    const raw = input.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+    const token = Object.keys(EVAL_TOKENS).find(k =>
+        k.replace(/[^A-Z0-9]/g, '') === raw
+    );
 
-    if (!EVAL_TOKENS[token]) {
+    if (!token) {
         input.classList.add('error');
         errorEl.textContent = 'Invalid evaluation key. Contact your administrator.';
         setTimeout(() => input.classList.remove('error'), 600);
