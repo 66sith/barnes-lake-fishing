@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fishcast-pro-v4';
+const CACHE_NAME = 'fishcast-pro-v5';
 const ASSETS = [
   '/',
   '/index.html',
