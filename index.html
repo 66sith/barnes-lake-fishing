@@ -670,6 +670,37 @@ body {
     text-align: center; max-width: 300px; line-height: 1.5;
 }
 
+/* ─── Settings Panel ──────────────────────────────────────────── */
+.settings-panel {
+    position: fixed; inset: 0; z-index: 300;
+    background: var(--bg-deep);
+    transform: translateX(100%);
+    transition: transform 0.3s var(--ease);
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+}
+.settings-panel.open { transform: translateX(0); }
+.settings-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
+}
+.settings-header h2 { font-family: var(--font-display); font-size: 1.4rem; color: var(--text-primary); margin: 0; }
+.settings-close { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; padding: 8px; }
+.settings-body { padding: 16px 20px; flex: 1; }
+.settings-group { margin-bottom: 24px; }
+.settings-group-title { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+.settings-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--text-secondary); font-size: 14px; }
+.settings-toggle-group { display: flex; gap: 4px; }
+.settings-opt { padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: var(--font-body); }
+.settings-opt.active { background: rgba(212,168,67,0.15); border-color: var(--gold); color: var(--gold); }
+.switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; inset: 0; background: rgba(255,255,255,0.1); border-radius: 24px; cursor: pointer; transition: 0.3s; }
+.slider:before { content: ''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+.switch input:checked + .slider { background: var(--gold); }
+.switch input:checked + .slider:before { transform: translateX(20px); }
+.settings-danger-btn { padding: 6px 16px; border-radius: 8px; border: 1px solid rgba(239,68,68,0.3); background: rgba(239,68,68,0.1); color: #ef4444; font-size: 13px; cursor: pointer; font-family: var(--font-body); }
+
 /* Session timer bar */
 #session-timer {
     position: fixed; top: 0; left: 0; right: 0; height: 3px;
@@ -764,7 +795,7 @@ body {
         </button>
         <div class="header-actions">
             <button class="header-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></button>
-            <button class="header-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
+            <button class="header-btn" onclick="openSettings()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
         </div>
     </div>
 
@@ -809,6 +840,66 @@ body {
     <!-- Lake Selector Modal -->
     <div id="lake-modal">
         <div class="lake-sheet" id="lake-sheet"></div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div id="settings-panel" class="settings-panel">
+        <div class="settings-header">
+            <h2>Settings</h2>
+            <button class="settings-close" onclick="closeSettings()">✕</button>
+        </div>
+        <div class="settings-body">
+            <div class="settings-group">
+                <div class="settings-group-title">Units</div>
+                <div class="settings-row">
+                    <span>Temperature</span>
+                    <div class="settings-toggle-group">
+                        <button class="settings-opt active" onclick="setSetting('tempUnit','F',this)">°F</button>
+                        <button class="settings-opt" onclick="setSetting('tempUnit','C',this)">°C</button>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <span>Weight</span>
+                    <div class="settings-toggle-group">
+                        <button class="settings-opt active" onclick="setSetting('weightUnit','lbs',this)">lbs</button>
+                        <button class="settings-opt" onclick="setSetting('weightUnit','kg',this)">kg</button>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <span>Length</span>
+                    <div class="settings-toggle-group">
+                        <button class="settings-opt active" onclick="setSetting('lengthUnit','in',this)">in</button>
+                        <button class="settings-opt" onclick="setSetting('lengthUnit','cm',this)">cm</button>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-group">
+                <div class="settings-group-title">Notifications</div>
+                <div class="settings-row">
+                    <span>Peak Window Alerts</span>
+                    <label class="switch"><input type="checkbox" id="setting-peak-alerts" checked onchange="toggleSetting('peakAlerts',this.checked)"><span class="slider"></span></label>
+                </div>
+                <div class="settings-row">
+                    <span>Solunar Reminders</span>
+                    <label class="switch"><input type="checkbox" id="setting-solunar" checked onchange="toggleSetting('solunarReminders',this.checked)"><span class="slider"></span></label>
+                </div>
+            </div>
+            <div class="settings-group">
+                <div class="settings-group-title">Data</div>
+                <div class="settings-row">
+                    <span>Clear Catch Log</span>
+                    <button class="settings-danger-btn" onclick="if(confirm('Delete all catch entries?')){localStorage.removeItem('fc_catches');renderCatchLog();closeSettings();}">Clear</button>
+                </div>
+            </div>
+            <div class="settings-group">
+                <div class="settings-group-title">About</div>
+                <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:4px">
+                    <span style="color:var(--text-primary)">FishCast Pro v1.0.0</span>
+                    <span style="font-size:11px;color:var(--text-muted)">Developed by Wasubi Labs</span>
+                    <span style="font-size:11px;color:var(--text-muted)">AI-powered fishing intelligence</span>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -1649,6 +1740,46 @@ function init() {
     } else {
         showGate();
     }
+}
+
+// ─── Settings ─────────────────────────────────────────────────────────────────
+function openSettings() {
+    document.getElementById('settings-panel').classList.add('open');
+    loadSettingsState();
+}
+function closeSettings() {
+    document.getElementById('settings-panel').classList.remove('open');
+}
+function setSetting(key, value, btn) {
+    const settings = JSON.parse(localStorage.getItem('fc_settings') || '{}');
+    settings[key] = value;
+    localStorage.setItem('fc_settings', JSON.stringify(settings));
+    btn.parentElement.querySelectorAll('.settings-opt').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+function toggleSetting(key, value) {
+    const settings = JSON.parse(localStorage.getItem('fc_settings') || '{}');
+    settings[key] = value;
+    localStorage.setItem('fc_settings', JSON.stringify(settings));
+}
+function getSettings() {
+    return JSON.parse(localStorage.getItem('fc_settings') || '{"tempUnit":"F","weightUnit":"lbs","lengthUnit":"in","peakAlerts":true,"solunarReminders":true}');
+}
+function loadSettingsState() {
+    const s = getSettings();
+    document.querySelectorAll('.settings-toggle-group').forEach(function(group) {
+        const label = group.closest('.settings-row').querySelector('span').textContent.trim().toLowerCase();
+        group.querySelectorAll('.settings-opt').forEach(function(btn) {
+            const txt = btn.textContent.trim().replace('°', '');
+            if (label === 'temperature') btn.classList.toggle('active', txt === s.tempUnit);
+            else if (label === 'weight') btn.classList.toggle('active', txt === s.weightUnit);
+            else if (label === 'length') btn.classList.toggle('active', txt === s.lengthUnit);
+        });
+    });
+    const peakEl = document.getElementById('setting-peak-alerts');
+    const solEl = document.getElementById('setting-solunar');
+    if (peakEl) peakEl.checked = s.peakAlerts !== false;
+    if (solEl) solEl.checked = s.solunarReminders !== false;
 }
 
 document.addEventListener('DOMContentLoaded', init);
