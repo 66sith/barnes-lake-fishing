@@ -1725,8 +1725,15 @@ function renderMap() {
             <div style="font-family:var(--font-display);font-size:22px;font-weight:700">Lake Map</div>
             <div style="font-size:12px;color:var(--text-secondary);margin-top:2px">${lake.name} · ${lake.acres} acres · Max ${lake.maxDepth}ft</div>
         </div>
-        <div id="map-container" class="glass" style="margin-top:8px;padding:0;overflow:hidden;height:360px">
+        <div id="map-container" class="glass" style="margin-top:8px;padding:0;overflow:hidden;height:360px;position:relative">
             <div id="maplibre" style="width:100%;height:100%"></div>
+            ${lake.maxDepth ? `<div class="map-depth-overlay"></div>
+            <div class="depth-legend">
+                <div>
+                    <div class="depth-gradient-bar"></div>
+                    <div class="depth-legend-labels"><span>Shallow</span><span>${lake.maxDepth}ft</span></div>
+                </div>
+            </div>` : ''}
             <div class="map-controls">
                 <button class="map-mode-btn" onclick="setMapStyle('sat')">SAT</button>
                 <button class="map-mode-btn" onclick="setMapStyle('topo')">TOPO</button>
