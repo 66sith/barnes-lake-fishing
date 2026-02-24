@@ -1,45 +1,19 @@
 {
-  "id": "barnes-lake-fishing",
-  "name": "Barnes Lake Fishing — Live Forecast",
-  "short_name": "Barnes Lake",
-  "description": "Live fishing forecast, solunar activity, species targeting, and depth map for Barnes Lake, Lapeer County, Michigan",
+  "name": "FishCast Pro",
+  "short_name": "FishCast",
+  "description": "AI-powered fishing forecasts, species targeting, and catch logging",
   "start_url": "/",
-  "scope": "/",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
-  "orientation": "any",
-  "background_color": "#0a1628",
-  "theme_color": "#0a1628",
-  "launch_handler": {
-    "client_mode": "navigate-existing"
-  },
+  "background_color": "#060e1a",
+  "theme_color": "#060e1a",
+  "orientation": "portrait",
+  "scope": "/",
   "icons": [
-    {
-      "src": "icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "categories": ["sports", "weather", "lifestyle"],
-  "lang": "en-US",
-  "dir": "ltr"
+  "screenshots": [],
+  "prefer_related_applications": false
 }
