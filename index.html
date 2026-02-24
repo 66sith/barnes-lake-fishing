@@ -670,6 +670,45 @@ body {
     text-align: center; max-width: 300px; line-height: 1.5;
 }
 
+/* ─── Catch Modal ─────────────────────────────────────────────── */
+.catch-modal {
+    position: fixed; inset: 0; z-index: 250;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(10px);
+    display: none; flex-direction: column; justify-content: flex-end;
+}
+.catch-modal.open { display: flex; animation: fadeIn 0.2s var(--ease); }
+.catch-sheet {
+    background: var(--bg-mid); border-radius: 20px 20px 0 0;
+    padding: 24px 20px 40px; max-height: 85vh; overflow-y: auto;
+}
+.catch-sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.catch-sheet-header h3 { font-family: var(--font-display); font-size: 1.3rem; color: var(--text-primary); margin: 0; }
+.catch-sheet-header button { background: none; border: none; color: var(--text-muted); font-size: 1.3rem; cursor: pointer; }
+.catch-sheet-body { display: flex; flex-direction: column; gap: 16px; }
+.catch-field { display: flex; flex-direction: column; gap: 6px; position: relative; }
+.catch-field label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); }
+.catch-field input, .catch-field select, .catch-field textarea {
+    background: var(--bg-surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; color: var(--text-primary); font-size: 15px; font-family: inherit;
+    outline: none; transition: border-color 0.2s;
+}
+.catch-field input:focus, .catch-field select:focus, .catch-field textarea:focus { border-color: var(--gold); }
+.catch-field select { appearance: none; cursor: pointer; }
+.catch-field select option { background: var(--bg-mid); }
+.catch-field textarea { resize: none; }
+.catch-unit { position: absolute; right: 14px; bottom: 13px; font-size: 13px; color: var(--text-muted); pointer-events: none; }
+.catch-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.catch-save-btn {
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark)); border: none; border-radius: 12px;
+    padding: 14px; color: var(--bg-deep); font-size: 15px; font-weight: 700; cursor: pointer;
+    letter-spacing: 0.03em; margin-top: 8px; font-family: var(--font-body);
+}
+.catch-delete-btn {
+    background: none; border: none; color: var(--score-poor); font-size: 11px;
+    cursor: pointer; padding: 4px 8px; border-radius: 6px; font-family: var(--font-body);
+    border: 1px solid rgba(239,68,68,0.2);
+}
+
 /* ─── Settings Panel ──────────────────────────────────────────── */
 .settings-panel {
     position: fixed; inset: 0; z-index: 300;
@@ -840,6 +879,50 @@ body {
     <!-- Lake Selector Modal -->
     <div id="lake-modal">
         <div class="lake-sheet" id="lake-sheet"></div>
+    </div>
+
+    <!-- Log Catch Modal -->
+    <div id="catch-modal" class="catch-modal">
+        <div class="catch-sheet">
+            <div class="catch-sheet-header">
+                <h3>Log a Catch</h3>
+                <button onclick="closeCatchModal()">✕</button>
+            </div>
+            <div class="catch-sheet-body">
+                <div class="catch-field">
+                    <label>Species</label>
+                    <select id="catch-species">
+                        <option value="">Select species...</option>
+                    </select>
+                </div>
+                <div class="catch-field-row">
+                    <div class="catch-field">
+                        <label>Weight</label>
+                        <input type="number" id="catch-weight" placeholder="0.0" step="0.1" min="0">
+                        <span class="catch-unit">lbs</span>
+                    </div>
+                    <div class="catch-field">
+                        <label>Length</label>
+                        <input type="number" id="catch-length" placeholder="0" step="0.5" min="0">
+                        <span class="catch-unit">in</span>
+                    </div>
+                </div>
+                <div class="catch-field">
+                    <label>Bait / Lure</label>
+                    <input type="text" id="catch-bait" placeholder="What did you use?">
+                </div>
+                <div class="catch-field">
+                    <label>Depth</label>
+                    <input type="number" id="catch-depth" placeholder="0" step="1" min="0">
+                    <span class="catch-unit">ft</span>
+                </div>
+                <div class="catch-field">
+                    <label>Notes</label>
+                    <textarea id="catch-notes" placeholder="Location, conditions, technique..." rows="2"></textarea>
+                </div>
+                <button class="catch-save-btn" onclick="saveCatch()">Save Catch</button>
+            </div>
+        </div>
     </div>
 
     <!-- Settings Panel -->
@@ -1348,37 +1431,66 @@ function renderSpecies() {
 
 function renderCatchLog() {
     const el = document.getElementById('screen-log');
+    const saved = getCatches();
+    const allEntries = saved.length > 0 ? saved : null;
+
+    const demoHTML = allEntries ? '' : CATCH_LOG.map(function(c) { return `
+        <div class="catch-entry">
+            <div class="catch-header">
+                <div><div class="catch-species">${c.species}</div><div class="catch-meta">${c.lake} · ${c.date}</div></div>
+                <div class="catch-badges">
+                    ${c.weight ? `<span class="catch-badge weight">${c.weight}</span>` : ''}
+                    ${c.length ? `<span class="catch-badge length">${c.length}</span>` : ''}
+                </div>
+            </div>
+            <div class="catch-details">
+                <span class="catch-detail" style="color:var(--text-muted)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${c.time}</span>
+                <span class="catch-detail" style="color:var(--gold-light)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1"/></svg> ${c.bait}</span>
+            </div>
+            ${c.notes ? `<div class="catch-notes">"${c.notes}"</div>` : ''}
+        </div>
+    `;}).join('');
+
+    const savedHTML = allEntries ? allEntries.map(function(c) { return `
+        <div class="catch-entry">
+            <div class="catch-header">
+                <div>
+                    <div class="catch-species">${c.species}</div>
+                    <div class="catch-meta">${c.lake} · ${c.date} · ${c.time}</div>
+                </div>
+                <div class="catch-badges">
+                    ${c.weight ? `<span class="catch-badge weight">${c.weight} lbs</span>` : ''}
+                    ${c.length ? `<span class="catch-badge length">${c.length}"</span>` : ''}
+                </div>
+            </div>
+            <div class="catch-details">
+                ${c.bait ? `<span class="catch-detail" style="color:var(--gold-light)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1"/></svg> ${c.bait}</span>` : ''}
+                ${c.depth ? `<span class="catch-detail" style="color:var(--text-muted)">↓ ${c.depth}ft</span>` : ''}
+                <button class="catch-delete-btn" onclick="deleteCatch(${c.id})">Delete</button>
+            </div>
+            ${c.notes ? `<div class="catch-notes">"${c.notes}"</div>` : ''}
+        </div>
+    `;}).join('') : '';
+
+    const totalCount = allEntries ? allEntries.length : 47;
+    const bestWeight = allEntries ? (allEntries.reduce(function(b, c) { return (c.weight || 0) > b ? (c.weight || 0) : b; }, 0) + ' lbs') : '12.4 lbs';
+    const monthCount = allEntries ? allEntries.filter(function(c) { return Date.now() - c.timestamp < 30*24*60*60*1000; }).length : 8;
+
     el.innerHTML = `
         <div class="flex justify-between items-center" style="padding:16px 4px 8px">
             <div>
                 <div style="font-family:var(--font-display);font-size:22px;font-weight:700">Catch Log</div>
-                <div style="font-size:12px;color:var(--text-secondary);margin-top:2px">${CATCH_LOG.length} catches this season</div>
+                <div style="font-size:12px;color:var(--text-secondary);margin-top:2px">${totalCount} catches logged</div>
             </div>
-            <button class="log-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Log Catch</button>
+            <button class="log-btn" onclick="openCatchModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Log Catch</button>
         </div>
         <div class="stats-grid" style="margin-top:8px">
-            <div class="glass stat-card" style="padding:14px 12px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.83 0 1.64-.1 2.41-.3"/><path d="M14 13c2 1 4 3 7 3"/></svg><div class="stat-value">47</div><div class="stat-label">TOTAL CATCHES</div></div>
-            <div class="glass stat-card" style="padding:14px 12px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 6 9 6 9zm12 0h1.5a2.5 2.5 0 000-5C17 4 18 9 18 9zm-2 11H8s0-4 2-7h4c2 3 2 7 2 7zm-3-11V4l3 1-3 1"/></svg><div class="stat-value">12.4 lbs</div><div class="stat-label">BEST WEIGHT</div></div>
-            <div class="glass stat-card" style="padding:14px 12px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg><div class="stat-value">8</div><div class="stat-label">THIS MONTH</div></div>
+            <div class="glass stat-card" style="padding:14px 12px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.83 0 1.64-.1 2.41-.3"/><path d="M14 13c2 1 4 3 7 3"/></svg><div class="stat-value">${totalCount}</div><div class="stat-label">TOTAL CATCHES</div></div>
+            <div class="glass stat-card" style="padding:14px 12px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 6 9 6 9zm12 0h1.5a2.5 2.5 0 000-5C17 4 18 9 18 9zm-2 11H8s0-4 2-7h4c2 3 2 7 2 7zm-3-11V4l3 1-3 1"/></svg><div class="stat-value">${bestWeight}</div><div class="stat-label">BEST WEIGHT</div></div>
+            <div class="glass stat-card" style="padding:14px 12px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg><div class="stat-value">${monthCount}</div><div class="stat-label">THIS MONTH</div></div>
         </div>
         <div class="glass" style="padding:4px 16px;margin-top:12px">
-            ${CATCH_LOG.map(c => `
-                <div class="catch-entry">
-                    <div class="catch-header">
-                        <div><div class="catch-species">${c.species}</div><div class="catch-meta">${c.lake} · ${c.date}</div></div>
-                        <div class="catch-badges">
-                            <span class="catch-badge weight">${c.weight}</span>
-                            <span class="catch-badge length">${c.length}</span>
-                        </div>
-                    </div>
-                    <div class="catch-details">
-                        <span class="catch-detail" style="color:var(--text-muted)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${c.time}</span>
-                        <span class="catch-detail" style="color:var(--gold-light)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1"/></svg> ${c.bait}</span>
-                        ${c.photo ? '<span class="catch-detail" style="color:var(--teal)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg> Photo</span>' : ''}
-                    </div>
-                    ${c.notes ? `<div class="catch-notes">"${c.notes}"</div>` : ''}
-                </div>
-            `).join('')}
+            ${savedHTML || demoHTML}
         </div>
     `;
 }
@@ -1740,6 +1852,53 @@ function init() {
     } else {
         showGate();
     }
+}
+
+// ─── Catch Log ────────────────────────────────────────────────────────────────
+function openCatchModal() {
+    const modal = document.getElementById('catch-modal');
+    const select = document.getElementById('catch-species');
+    select.innerHTML = '<option value="">Select species...</option>' +
+        state.currentLake.species.map(function(s) { return `<option value="${s}">${s}</option>`; }).join('');
+    modal.classList.add('open');
+}
+function closeCatchModal() {
+    document.getElementById('catch-modal').classList.remove('open');
+    ['catch-species','catch-weight','catch-length','catch-bait','catch-depth','catch-notes'].forEach(function(id) {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+}
+function saveCatch() {
+    const species = document.getElementById('catch-species').value;
+    if (!species) { alert('Please select a species'); return; }
+    const entry = {
+        id: Date.now(),
+        species: species,
+        weight: parseFloat(document.getElementById('catch-weight').value) || null,
+        length: parseFloat(document.getElementById('catch-length').value) || null,
+        bait: document.getElementById('catch-bait').value.trim() || null,
+        depth: parseFloat(document.getElementById('catch-depth').value) || null,
+        notes: document.getElementById('catch-notes').value.trim() || null,
+        lake: state.currentLake.name,
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+        timestamp: Date.now()
+    };
+    const catches = getCatches();
+    catches.unshift(entry);
+    localStorage.setItem('fc_catches', JSON.stringify(catches));
+    closeCatchModal();
+    renderCatchLog();
+}
+function getCatches() {
+    try { return JSON.parse(localStorage.getItem('fc_catches') || '[]'); } catch(e) { return []; }
+}
+function deleteCatch(id) {
+    if (!confirm('Delete this catch entry?')) return;
+    const catches = getCatches().filter(function(c) { return c.id !== id; });
+    localStorage.setItem('fc_catches', JSON.stringify(catches));
+    renderCatchLog();
 }
 
 // ─── Settings ─────────────────────────────────────────────────────────────────
