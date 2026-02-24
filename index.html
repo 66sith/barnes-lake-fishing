@@ -523,6 +523,50 @@ body {
     body { display: flex; justify-content: center; align-items: center; }
 }
 
+/* ─── Mobile Small (≤ 380px) ─────────────────────────────────── */
+@media (max-width: 380px) {
+    /* Header: tighten gap so lake selector has breathing room */
+    .lake-selector-btn { padding: 7px 10px; font-size: 12px; }
+    .lake-selector-btn svg:last-child { display: none; }
+    .header-btn { width: 32px; height: 32px; }
+    .header-actions { gap: 4px; }
+
+    /* 7-day weekly: smaller font + tighter cells */
+    .weekly-day .name { font-size: 9px; }
+    .weekly-day .emoji { font-size: 15px; }
+    .weekly-day .temps { font-size: 9px; }
+    .weekly-score { width: 26px; height: 26px; font-size: 10px; }
+    .weekly-day .precip { font-size: 8px; }
+
+    /* Stats grid minimum size */
+    .stats-grid { grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+    .stat-value { font-size: 15px; }
+    .stat-label { font-size: 9px; }
+
+    /* Species tags wrap better */
+    .species-tags { gap: 5px; }
+    .species-tag { font-size: 10px; padding: 3px 8px; }
+
+    /* Hourly cells slightly smaller */
+    .hourly-cell { min-width: 42px; }
+    .hourly-bar-container { width: 28px; }
+
+    /* Pricing grid: stack on very small phones */
+    .pricing-grid { grid-template-columns: 1fr; }
+
+    /* Lake info grid: stack on very small */
+    .lake-info-grid { grid-template-columns: 1fr 1fr; }
+
+    /* Catch modal inputs: ensure they're accessible */
+    .catch-field input, .catch-field select, .catch-field textarea { font-size: 16px; } /* Prevents iOS zoom */
+}
+
+/* ─── All phones: prevent iOS input zoom ────────────────────── */
+@media (max-width: 767px) {
+    .catch-field input, .catch-field select, .catch-field textarea { font-size: 16px; }
+    .gate-input { font-size: 16px; }
+}
+
 /* ─── Utility ──────────────────────────────────────────────────── */
 .flex { display: flex; }
 .flex-col { flex-direction: column; }
