@@ -1477,25 +1477,56 @@ function setupGateInput() {
     });
 }
 
+function getTokenUsage() {
+    try {
+        return JSON.parse(localStorage.getItem('fc_token_usage') || '{}');
+    } catch(e) { return {}; }
+}
+
+function recordTokenUse(token) {
+    const usage = getTokenUsage();
+    usage[token] = (usage[token] || 0) + 1;
+    localStorage.setItem('fc_token_usage', JSON.stringify(usage));
+    return usage[token];
+}
+
+function getTokenRemainingUses(token) {
+    if (!EVAL_TOKENS[token]) return 0;
+    const usage = getTokenUsage();
+    return EVAL_TOKENS[token].maxUses - (usage[token] || 0);
+}
+
 function validateToken() {
     const input = document.getElementById('gate-token');
     const errorEl = document.getElementById('gate-error');
     const token = input.value.trim().toUpperCase();
 
-    if (EVAL_TOKENS[token]) {
-        const session = {
-            token: token,
-            name: EVAL_TOKENS[token].name,
-            startedAt: Date.now(),
-            expiresAt: Date.now() + SESSION_DURATION
-        };
-        localStorage.setItem('fc_eval_session', JSON.stringify(session));
-        dismissGate();
-    } else {
+    if (!EVAL_TOKENS[token]) {
         input.classList.add('error');
         errorEl.textContent = 'Invalid evaluation key. Contact your administrator.';
         setTimeout(() => input.classList.remove('error'), 600);
+        return;
     }
+
+    const remaining = getTokenRemainingUses(token);
+    if (remaining <= 0) {
+        input.classList.add('error');
+        errorEl.textContent = 'This evaluation key has reached its usage limit. Contact your administrator.';
+        setTimeout(() => input.classList.remove('error'), 600);
+        return;
+    }
+
+    const useNumber = recordTokenUse(token);
+    const session = {
+        token: token,
+        name: EVAL_TOKENS[token].name,
+        useNumber: useNumber,
+        maxUses: EVAL_TOKENS[token].maxUses,
+        startedAt: Date.now(),
+        expiresAt: Date.now() + SESSION_DURATION
+    };
+    localStorage.setItem('fc_eval_session', JSON.stringify(session));
+    dismissGate();
 }
 
 function checkExistingSession() {

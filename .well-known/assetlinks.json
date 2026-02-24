@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.wasubilabs.fishcastpro",
+    "sha256_cert_fingerprints": ["B8:69:AE:F0:70:7F:2B:47:2A:7D:3E:B3:F6:76:67:B8:47:02:AB:16:4A:21:BE:18:F8:1C:E3:F9:41:87:AB:8E"]
+  }
+}]
