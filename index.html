@@ -670,6 +670,45 @@ body {
     text-align: center; max-width: 300px; line-height: 1.5;
 }
 
+/* ─── Notification Panel ──────────────────────────────────────── */
+.notif-overlay {
+    position: fixed; inset: 0; z-index: 290; pointer-events: none;
+}
+.notif-overlay.open { pointer-events: all; }
+.notif-panel {
+    position: fixed; top: 56px; right: 12px; z-index: 291;
+    width: 300px; background: var(--bg-mid); border: 1px solid var(--border);
+    border-radius: 16px; box-shadow: var(--shadow);
+    transform: scale(0.9) translateY(-10px); opacity: 0;
+    transition: transform 0.2s var(--spring), opacity 0.2s var(--ease);
+    pointer-events: none; overflow: hidden;
+}
+.notif-panel.open { transform: scale(1) translateY(0); opacity: 1; pointer-events: all; }
+.notif-panel-header {
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--gold);
+}
+.notif-item {
+    display: flex; gap: 12px; padding: 12px 16px;
+    border-bottom: 1px solid var(--border); align-items: flex-start;
+}
+.notif-item:last-child { border-bottom: none; }
+.notif-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.notif-text { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
+.notif-text strong { color: var(--text-primary); display: block; margin-bottom: 2px; font-size: 13px; }
+
+/* Toast */
+.toast {
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--bg-mid); border: 1px solid var(--border); border-radius: 12px;
+    padding: 12px 20px; font-size: 13px; color: var(--text-primary);
+    z-index: 9999; opacity: 0; transition: opacity 0.3s, transform 0.3s;
+    box-shadow: var(--shadow); text-align: center; max-width: 280px;
+    white-space: normal; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
 /* ─── Species Detail ──────────────────────────────────────────── */
 .species-detail-overlay {
     position: fixed; inset: 0; z-index: 260;
@@ -877,7 +916,7 @@ body {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
         </button>
         <div class="header-actions">
-            <button class="header-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></button>
+            <button class="header-btn" onclick="toggleNotifPanel(event)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></button>
             <button class="header-btn" onclick="openSettings()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg></button>
         </div>
     </div>
@@ -924,6 +963,15 @@ body {
     <div id="lake-modal">
         <div class="lake-sheet" id="lake-sheet"></div>
     </div>
+
+    <!-- Notification Panel -->
+    <div id="notif-panel" class="notif-panel">
+        <div class="notif-panel-header">Notifications</div>
+        <div id="notif-list"></div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
 
     <!-- Species Detail -->
     <div id="species-detail-overlay" class="species-detail-overlay" onclick="closeSpeciesDetail(event)">
@@ -1904,6 +1952,80 @@ function init() {
     } else {
         showGate();
     }
+}
+
+// ─── Notifications & Toast ────────────────────────────────────────────────────
+function toggleNotifPanel(event) {
+    if (event) event.stopPropagation();
+    const panel = document.getElementById('notif-panel');
+    const isOpen = panel.classList.contains('open');
+    if (!isOpen) {
+        generateNotifications();
+    }
+    panel.classList.toggle('open');
+    if (!isOpen) {
+        setTimeout(function() {
+            document.addEventListener('click', closeNotifOnOutside, { once: true });
+        }, 0);
+    }
+}
+function closeNotifOnOutside(event) {
+    const panel = document.getElementById('notif-panel');
+    if (!panel.contains(event.target)) {
+        panel.classList.remove('open');
+    } else {
+        document.addEventListener('click', closeNotifOnOutside, { once: true });
+    }
+}
+function generateNotifications() {
+    const w = state.weather;
+    const sol = state.solunar;
+    const score = state.speciesScores.length ? state.speciesScores[0] : null;
+    const notifs = [];
+
+    if (sol) {
+        const now = new Date().getHours() + new Date().getMinutes()/60;
+        sol.majorPeaks.forEach(function(p) {
+            const diff = p - now;
+            if (diff > 0 && diff < 4) {
+                const sh = Math.floor(p), sm = Math.round((p-sh)*60);
+                const timeStr = (sh%12||12) + ':' + sm.toString().padStart(2,'0') + ' ' + (sh<12?'AM':'PM');
+                notifs.push({ icon:'🌙', title:'Major Solunar Period', text:'Peak activity window ' + timeStr + ' — prime time to be on the water.' });
+            }
+        });
+        const illum = Math.round(sol.illumination * 100);
+        notifs.push({ icon:'🌕', title:'Moon Phase', text: illum + '% illumination — ' + sol.phaseName + '. ' + (illum < 30 || illum > 70 ? 'Favorable feeding conditions.' : 'Moderate activity expected.') });
+    }
+
+    if (w) {
+        const pressure = w.current?.pressure_msl;
+        if (pressure) {
+            notifs.push({ icon:'📊', title:'Pressure Update', text: Math.round(pressure) + ' mb — ' + (pressure < 1010 ? 'Low pressure often triggers active feeding.' : pressure > 1020 ? 'High pressure — fish may be deeper.' : 'Stable conditions, steady bite likely.') });
+        }
+        const temp = w.current?.temperature_2m;
+        if (temp) {
+            notifs.push({ icon:'🌡️', title:'Air Temperature', text: Math.round(temp) + '°F — ' + (temp >= 50 && temp <= 75 ? 'Comfortable fishing weather.' : temp < 40 ? 'Cold — fish slow, try deep and slow.' : 'Warm — try early morning or evening.') });
+        }
+    }
+
+    if (score) {
+        notifs.push({ icon:'🎣', title:'Best Species Now', text: score.name + ' rated ' + score.score + '/100 — ' + score.technique });
+    }
+
+    if (!notifs.length) {
+        notifs.push({ icon:'ℹ️', title:'No Active Alerts', text:'All conditions nominal. Check back during solunar peak windows.' });
+    }
+
+    document.getElementById('notif-list').innerHTML = notifs.slice(0,4).map(function(n) {
+        return `<div class="notif-item"><span class="notif-icon">${n.icon}</span><div class="notif-text"><strong>${n.title}</strong>${n.text}</div></div>`;
+    }).join('');
+}
+
+function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(function() { el.classList.remove('show'); }, 3000);
 }
 
 // ─── Species Detail ───────────────────────────────────────────────────────────
