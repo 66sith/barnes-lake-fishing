@@ -1739,6 +1739,20 @@ function switchScreen(name) {
 }
 
 // ─── Lake Modal ───────────────────────────────────────────────────────────────
+function renderLakeList(filter) {
+    const q = (filter || '').toLowerCase();
+    const filtered = LAKES.filter(function(l) {
+        return !q || l.name.toLowerCase().includes(q) || l.location.toLowerCase().includes(q);
+    });
+    return filtered.map(function(l) {
+        return `<button class="lake-option ${l.id===state.currentLake.id?'selected':''}" onclick="selectLake(${l.id})">
+            <div class="lake-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M2 15c6.667-6 13.333 0 20-6"/><path d="M2 19c6.667-6 13.333 0 20-6"/></svg></div>
+            <div style="flex:1"><div class="lake-option-name">${l.name}</div><div class="lake-option-meta">${l.location} · ${l.acres} acres</div></div>
+            ${l.id===state.currentLake.id ? '<div class="lake-selected-dot"></div>' : ''}
+        </button>`;
+    }).join('') || '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:13px">No lakes found</div>';
+}
+
 function openLakeModal() {
     const modal = document.getElementById('lake-modal');
     const sheet = document.getElementById('lake-sheet');
@@ -1747,18 +1761,21 @@ function openLakeModal() {
             <div class="lake-sheet-title">Select Lake</div>
             <button class="lake-close-btn" onclick="closeLakeModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>
-        <div class="lake-search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>Search 50,000+ lakes...</span><span class="pro-badge"><svg viewBox="0 0 24 24"><path d="M2 4l3 12h14l3-12-5.5 5L12 2l-4.5 5L2 4z"/></svg> PRO</span></div>
-        <div class="lake-list-label">SAVED LAKES</div>
-        ${LAKES.filter(l=>l.saved).map(l => `
-            <button class="lake-option ${l.id===state.currentLake.id?'selected':''}" onclick="selectLake(${l.id})">
-                <div class="lake-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M2 15c6.667-6 13.333 0 20-6"/><path d="M2 19c6.667-6 13.333 0 20-6"/></svg></div>
-                <div style="flex:1"><div class="lake-option-name">${l.name}</div><div class="lake-option-meta">${l.location} · ${l.acres} acres</div></div>
-                ${l.id===state.currentLake.id ? '<div class="lake-selected-dot"></div>' : ''}
-            </button>
-        `).join('')}
+        <div class="lake-search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input id="lake-search-input" type="text" placeholder="Search lakes..." autocomplete="off"
+                style="background:none;border:none;outline:none;color:var(--text-primary);font-size:13px;font-family:inherit;flex:1"
+                oninput="document.getElementById('lake-list-items').innerHTML=renderLakeList(this.value)">
+        </div>
+        <div class="lake-list-label">ALL LAKES</div>
+        <div id="lake-list-items">${renderLakeList('')}</div>
         <button class="add-lake-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add New Lake</button>
     `;
     modal.classList.add('open');
+    setTimeout(function() {
+        const input = document.getElementById('lake-search-input');
+        if (input) input.focus();
+    }, 300);
 }
 function closeLakeModal() { document.getElementById('lake-modal').classList.remove('open'); }
 function selectLake(id) {
