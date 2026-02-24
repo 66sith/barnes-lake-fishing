@@ -1539,7 +1539,7 @@ function renderForecast() {
                         <circle cx="55" cy="55" r="${r}" fill="none" stroke="${scoreColor}" stroke-width="8" stroke-dasharray="${circ}" stroke-dashoffset="${dashOffset}" stroke-linecap="round" style="transition:stroke-dashoffset 1.2s cubic-bezier(0.34,1.56,0.64,1);filter:drop-shadow(0 0 8px ${scoreColor}60)"/>
                     </svg>
                     <div class="value">
-                        <span class="number" style="font-size:35px;color:${scoreColor}">${score.total}</span>
+                        <span class="number" id="score-number" style="font-size:35px;color:${scoreColor}">0</span>
                         <span class="label">${getScoreLabel(score.total)}</span>
                     </div>
                 </div>
@@ -1621,6 +1621,21 @@ function renderForecast() {
             }).join('')}
         </div>
     `;
+    // Score count-up animation
+    (function() {
+        const el = document.getElementById('score-number');
+        if (!el) return;
+        const target = score.total;
+        let current = 0;
+        const duration = 1000;
+        const step = target / (duration / 16);
+        function tick() {
+            current = Math.min(current + step, target);
+            el.textContent = Math.round(current);
+            if (current < target) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+    })();
 }
 
 function handleSpeciesCard(name, locked) {
