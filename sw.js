@@ -1,7 +1,7 @@
 // Barnes Lake Fishing — Service Worker
 // Production-quality offline-first PWA support
 
-const CACHE_NAME = 'barnes-lake-v3';
+const CACHE_NAME = 'barnes-lake-v4';
 const TILE_CACHE = 'barnes-lake-tiles-v2';
 const MAX_TILES = 500;
 
