@@ -2139,10 +2139,27 @@ async function startApp() {
     try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch(e) {}
 }
 
+// ─── Offline Detection ────────────────────────────────────────────────────────
+function setupOfflineBanner() {
+    var banner = document.getElementById('offline-banner');
+    if (!banner) return;
+    function updateBanner() {
+        if (!navigator.onLine) {
+            banner.classList.add('visible');
+        } else {
+            banner.classList.remove('visible');
+        }
+    }
+    window.addEventListener('online', updateBanner);
+    window.addEventListener('offline', updateBanner);
+    updateBanner();
+}
+
 function init() {
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').catch(e => console.log('SW reg failed:', e));
+        navigator.serviceWorker.register('sw.js').catch(function(e) { console.error('SW reg failed:', e); });
     }
+    setupOfflineBanner();
     const session = checkExistingSession();
     if (session) {
         dismissGate();
