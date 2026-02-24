@@ -1899,6 +1899,12 @@ function renderPremium() {
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
 function switchScreen(name) {
+    // Clean up map when navigating away to free GPU/memory
+    if (state.currentScreen === 'map' && name !== 'map' && state.mapInstance) {
+        state.mapInstance.remove();
+        state.mapInstance = null;
+        window._map = null;
+    }
     state.currentScreen = name;
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + name).classList.add('active');
