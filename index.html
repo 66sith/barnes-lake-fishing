@@ -538,9 +538,199 @@ body {
 .mb-14 { margin-bottom: 14px; }
 .p-16 { padding: 16px; }
 .p-20 { padding: 20px; }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   TOKEN GATE — Partner Evaluation Environment
+   ═══════════════════════════════════════════════════════════════════════════════ */
+#eval-gate {
+    position: fixed; inset: 0; z-index: 99999;
+    background: var(--bg-deep);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 32px 24px;
+    transition: opacity 0.6s var(--ease), visibility 0.6s;
+}
+#eval-gate.dismissed { opacity: 0; visibility: hidden; pointer-events: none; }
+
+.gate-ambient-1 {
+    position: absolute; top: -20%; right: -10%; width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(212,168,67,0.04) 0%, transparent 65%);
+    pointer-events: none;
+}
+.gate-ambient-2 {
+    position: absolute; bottom: -20%; left: -10%; width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,212,170,0.03) 0%, transparent 60%);
+    pointer-events: none;
+}
+
+.gate-logo {
+    width: 88px; height: 88px; border-radius: 22px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 16px 48px rgba(212,168,67,0.25), 0 0 0 1px rgba(212,168,67,0.15);
+    margin-bottom: 32px;
+    animation: gatePulse 3s ease infinite;
+}
+.gate-logo svg { width: 44px; height: 44px; fill: none; stroke: var(--bg-deep); stroke-width: 2.2; }
+@keyframes gatePulse {
+    0%, 100% { box-shadow: 0 16px 48px rgba(212,168,67,0.25), 0 0 0 1px rgba(212,168,67,0.15); }
+    50% { box-shadow: 0 20px 60px rgba(212,168,67,0.35), 0 0 0 1px rgba(212,168,67,0.25); }
+}
+
+.gate-divider {
+    width: 40px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin-bottom: 24px;
+}
+
+.gate-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 3.5px;
+    color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;
+}
+.gate-title {
+    font-family: var(--font-display); font-size: 18px; font-weight: 600;
+    color: var(--text-primary); letter-spacing: 0.5px; margin-bottom: 40px;
+    text-align: center; line-height: 1.4;
+}
+
+.gate-input-group {
+    width: 100%; max-width: 340px;
+    display: flex; flex-direction: column; gap: 12px;
+    margin-bottom: 16px;
+}
+.gate-input-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 2px;
+    color: var(--text-muted); text-transform: uppercase;
+}
+.gate-input {
+    width: 100%; padding: 14px 18px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border-light);
+    border-radius: 12px; color: var(--text-primary);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 15px; font-weight: 600; letter-spacing: 2px;
+    text-align: center; text-transform: uppercase;
+    outline: none; transition: all 0.3s var(--ease);
+    caret-color: var(--gold);
+}
+.gate-input::placeholder {
+    color: var(--text-muted); letter-spacing: 2px;
+    font-weight: 400; text-transform: none;
+}
+.gate-input:focus {
+    border-color: var(--gold); background: rgba(212,168,67,0.04);
+    box-shadow: 0 0 0 3px rgba(212,168,67,0.08);
+}
+.gate-input.error {
+    border-color: var(--score-poor);
+    box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
+    animation: gateShake 0.4s ease;
+}
+@keyframes gateShake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+}
+
+.gate-submit {
+    width: 100%; max-width: 340px; padding: 14px;
+    border-radius: 12px; border: none; cursor: pointer;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: var(--bg-deep); font-family: var(--font-body);
+    font-size: 13px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(212,168,67,0.25);
+}
+.gate-submit:active { transform: scale(0.97); }
+.gate-submit:disabled {
+    opacity: 0.4; cursor: not-allowed; transform: none;
+}
+
+.gate-error-msg {
+    font-size: 12px; color: var(--score-poor); margin-top: 8px;
+    text-align: center; min-height: 18px;
+    transition: opacity 0.2s;
+}
+
+.gate-footer {
+    position: absolute; bottom: 32px; left: 0; right: 0;
+    text-align: center;
+}
+.gate-footer-line {
+    font-size: 9px; font-weight: 600; letter-spacing: 2.5px;
+    color: var(--text-muted); text-transform: uppercase;
+}
+.gate-footer-brand {
+    font-size: 10px; font-weight: 700; letter-spacing: 3px;
+    color: rgba(212,168,67,0.5); margin-top: 4px;
+}
+
+.gate-confidential {
+    font-size: 9px; color: rgba(255,255,255,0.12);
+    letter-spacing: 1px; margin-top: 20px;
+    text-align: center; max-width: 300px; line-height: 1.5;
+}
+
+/* Session timer bar */
+#session-timer {
+    position: fixed; top: 0; left: 0; right: 0; height: 3px;
+    z-index: 99998; display: none;
+}
+#session-timer .timer-bar {
+    height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    transition: width 1s linear;
+    box-shadow: 0 0 8px rgba(212,168,67,0.4);
+}
+#session-timer .timer-label {
+    position: absolute; top: 6px; right: 12px;
+    font-size: 10px; font-weight: 600; letter-spacing: 1px;
+    color: var(--gold); font-family: 'SF Mono', 'Fira Code', monospace;
+    background: rgba(6,14,26,0.9); padding: 3px 8px; border-radius: 4px;
+    border: 1px solid rgba(212,168,67,0.2);
+}
 </style>
 </head>
 <body>
+
+<!-- ═══ Evaluation Gate ═══ -->
+<div id="eval-gate">
+    <div class="gate-ambient-1"></div>
+    <div class="gate-ambient-2"></div>
+
+    <div class="gate-logo">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.83 0 1.64-.1 2.41-.3" stroke-linecap="round"/><path d="M7 12c0-2.5 2-5 5-5s5 2.5 5 5" stroke-linecap="round"/><circle cx="9" cy="11" r="0.5" fill="currentColor"/><path d="M14 13c2 1 4 3 7 3" stroke-linecap="round"/><path d="M15 11c2-1 4-2 6.5-1.5" stroke-linecap="round"/></svg>
+    </div>
+
+    <div class="gate-divider"></div>
+
+    <div class="gate-label">Restricted Access</div>
+    <div class="gate-title">Partner Evaluation Environment</div>
+
+    <div class="gate-input-group">
+        <div class="gate-input-label">Evaluation Key</div>
+        <input type="text" id="gate-token" class="gate-input" placeholder="FC-XXXX-XXXX-XXXX"
+            autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"
+            maxlength="19">
+    </div>
+
+    <button id="gate-submit" class="gate-submit" onclick="validateToken()" disabled>Authenticate</button>
+    <div id="gate-error" class="gate-error-msg"></div>
+
+    <div class="gate-confidential">
+        This evaluation environment contains proprietary technology under active development.
+        Unauthorized access or distribution is prohibited.
+    </div>
+
+    <div class="gate-footer">
+        <div class="gate-footer-line">Developed by</div>
+        <div class="gate-footer-brand">WASUBI LABS</div>
+    </div>
+</div>
+
+<!-- Session Timer -->
+<div id="session-timer">
+    <div class="timer-bar" style="width:100%"></div>
+    <div class="timer-label">60:00</div>
+</div>
 
 <!-- ═══ Splash Screen ═══ -->
 <div id="splash">
@@ -1248,17 +1438,146 @@ async function loadData() {
     else if (state.currentScreen === 'species') renderSpecies();
 }
 
-async function init() {
+// ═══ TOKEN GATE SYSTEM ═══════════════════════════════════════════════════════
+const EVAL_TOKENS = {
+    'FC-2026-7K3X-QN91': { name: 'Alpha',   maxUses: 5 },
+    'FC-2026-4M8R-DP52': { name: 'Bravo',   maxUses: 5 },
+    'FC-2026-9T2W-HJ67': { name: 'Charlie', maxUses: 5 },
+    'FC-2026-1B5V-YC84': { name: 'Delta',   maxUses: 5 },
+    'FC-2026-6F9L-ZA38': { name: 'Echo',    maxUses: 5 },
+    'FC-2026-MASTER-00': { name: 'Master',  maxUses: 999 },
+};
+const SESSION_DURATION = 60 * 60 * 1000; // 1 hour
+let sessionTimer = null;
+
+function formatGateInput(value) {
+    const clean = value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+    const parts = [];
+    if (clean.length > 0) parts.push(clean.slice(0, 2));
+    if (clean.length > 2) parts.push(clean.slice(2, 6));
+    if (clean.length > 6) parts.push(clean.slice(6, 10));
+    if (clean.length > 10) parts.push(clean.slice(10, 14));
+    return parts.join('-');
+}
+
+function setupGateInput() {
+    const input = document.getElementById('gate-token');
+    const btn = document.getElementById('gate-submit');
+    if (!input) return;
+
+    input.addEventListener('input', function() {
+        this.value = formatGateInput(this.value);
+        btn.disabled = this.value.length < 16;
+        this.classList.remove('error');
+        document.getElementById('gate-error').textContent = '';
+    });
+
+    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !btn.disabled) validateToken();
+    });
+}
+
+function validateToken() {
+    const input = document.getElementById('gate-token');
+    const errorEl = document.getElementById('gate-error');
+    const token = input.value.trim().toUpperCase();
+
+    if (EVAL_TOKENS[token]) {
+        const session = {
+            token: token,
+            name: EVAL_TOKENS[token].name,
+            startedAt: Date.now(),
+            expiresAt: Date.now() + SESSION_DURATION
+        };
+        localStorage.setItem('fc_eval_session', JSON.stringify(session));
+        dismissGate();
+    } else {
+        input.classList.add('error');
+        errorEl.textContent = 'Invalid evaluation key. Contact your administrator.';
+        setTimeout(() => input.classList.remove('error'), 600);
+    }
+}
+
+function checkExistingSession() {
+    try {
+        const raw = localStorage.getItem('fc_eval_session');
+        if (!raw) return false;
+        const session = JSON.parse(raw);
+        if (Date.now() > session.expiresAt) {
+            localStorage.removeItem('fc_eval_session');
+            return false;
+        }
+        return session;
+    } catch(e) { return false; }
+}
+
+function dismissGate() {
+    document.getElementById('eval-gate').classList.add('dismissed');
+    startSessionTimer();
+    startApp();
+}
+
+function startSessionTimer() {
+    const timerEl = document.getElementById('session-timer');
+    const barEl = timerEl.querySelector('.timer-bar');
+    const labelEl = timerEl.querySelector('.timer-label');
+    timerEl.style.display = 'block';
+
+    const session = JSON.parse(localStorage.getItem('fc_eval_session'));
+    if (!session) return;
+
+    function update() {
+        const remaining = Math.max(0, session.expiresAt - Date.now());
+        const pct = (remaining / SESSION_DURATION) * 100;
+        const mins = Math.floor(remaining / 60000);
+        const secs = Math.floor((remaining % 60000) / 1000);
+        barEl.style.width = pct + '%';
+        labelEl.textContent = String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0');
+
+        if (remaining < 300000) {
+            barEl.style.background = 'linear-gradient(90deg, var(--score-poor), var(--score-fair))';
+            labelEl.style.color = 'var(--score-poor)';
+            labelEl.style.borderColor = 'rgba(239,68,68,0.3)';
+        }
+
+        if (remaining <= 0) {
+            clearInterval(sessionTimer);
+            localStorage.removeItem('fc_eval_session');
+            location.reload();
+        }
+    }
+    update();
+    sessionTimer = setInterval(update, 1000);
+}
+
+function showGate() {
+    document.getElementById('eval-gate').classList.remove('dismissed');
+    document.getElementById('session-timer').style.display = 'none';
+    document.getElementById('splash').classList.add('hidden');
+    setupGateInput();
+    setTimeout(() => {
+        const input = document.getElementById('gate-token');
+        if (input) input.focus();
+    }, 400);
+}
+
+// ─── App Start ────────────────────────────────────────────────────────────────
+async function startApp() {
     await loadData();
     renderForecast();
     setTimeout(() => { document.getElementById('splash').classList.add('hidden'); }, 800);
-
-    // Screen Wake Lock
     try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch(e) {}
+}
 
-    // Register SW
+function init() {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(e => console.log('SW reg failed:', e));
+    }
+    const session = checkExistingSession();
+    if (session) {
+        dismissGate();
+    } else {
+        showGate();
     }
 }
 
