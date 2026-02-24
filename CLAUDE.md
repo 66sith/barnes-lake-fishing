@@ -1,47 +1,76 @@
-# Barnes Lake Fishing PWA
+# FishCast Pro — Project Context
 
-## Architecture
-- **Single HTML monolith** — no build tools, no npm
-- **CDN deps:** MapLibre GL JS 4.7.1, SunCalc 1.9.0
-- **API:** Open-Meteo (free, no auth)
-- **Serving:** nginx port 8092 → Cloudflare tunnel → `fishing.wasubihq.com`
-- **Config:** `/opt/homebrew/etc/nginx/servers/fishing.conf`
+## ⚠️ FIRST THING EVERY SESSION: READ SESSION_STATE.md ⚠️
 
-## Design Tokens
-- Bg: `#0a1628` → `#0f1f35` → `#162a46`
-- Gold: `#d4a843` (metallic accent)
-- Teal: `#00d4aa` (score/data)
-- Glass: `rgba(15,31,53,0.72)` + `backdrop-filter: blur(40px)`
-- Font: `-apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui`
-- iOS Spring: `cubic-bezier(0.34, 1.56, 0.64, 1)`
-- Tap: `180ms cubic-bezier(0.2, 0, 0, 1)`
+```bash
+cat SESSION_STATE.md
+git log --oneline -10
+```
 
-## Key Files
-| File | Purpose |
-|------|---------|
-| `index.html` | Entire app (~3000 lines) |
-| `sw.js` | Service worker (offline-first) |
-| `manifest.json` | PWA manifest |
-| `icons/` | App icons (192, 512, apple-touch, favicon) |
+If SESSION_STATE.md shows completed tasks, DO NOT redo them.
+Continue from the NEXT uncompleted task only.
 
-## Barnes Lake Info
-- Location: 43.1845°N, 83.3025°W
-- Lapeer County, Michigan
-- 149 acres, max depth ~45ft
-- Two basins (north + south), kidney/boomerang shape
+## What This Project Is
 
-## Species: Largemouth, Smallmouth, Pike, Crappie, Bluegill, Perch, Walleye
+FishCast Pro is a single-file PWA fishing forecast app.
+- **Live site:** https://fishing.wasubihq.com (GitHub Pages)
+- **Repo:** 66sith/barnes-lake-fishing
+- **Architecture:** Everything is in `index.html` (~2148 lines). CSS + HTML + JS in one file.
+- **External libs already loaded:** MapLibre GL 4.7.1, SunCalc 1.9.0 — do NOT add others
+- **Contact:** ops@wasubihq.com (business) / trap4tacos@gmail.com (GitHub)
 
-## Testing Checklist
-- [ ] Jeff banner gold metallic shimmer
-- [ ] Gauge placeholder → fills on weather load
-- [ ] Hourly timeline 24h species + best windows
-- [ ] Species cards with 2 baits + Amazon links
-- [ ] Bottom sheet: spring snap, velocity flick, rubberband
-- [ ] Sheet content scrolls at full height
-- [ ] Safe areas (Dynamic Island + home indicator)
-- [ ] All touch targets ≥ 44pt
-- [ ] Settings persist across reload
-- [ ] Screen Wake Lock active
-- [ ] Zero console errors
-- [ ] SW caches v3
+## 🚫 ABSOLUTE RULES — VIOLATING ANY = SESSION FAILURE
+
+1. Do NOT change any port numbers anywhere
+2. Do NOT rename or move files
+3. Do NOT restructure the repo or add folders
+4. Do NOT modify the gate system (EVAL_TOKENS, session timer) unless the current task says to
+5. Do NOT modify sw.js or manifest.json
+6. Do NOT add external dependencies
+7. Do NOT create a backend/server — this is a client-side PWA
+8. Do NOT push to git without committing first
+9. Do NOT start work without reading SESSION_STATE.md
+10. Do NOT redo completed tasks — check git log
+
+## Git Workflow
+
+After EVERY completed task:
+```bash
+git add -A
+git commit -m "TASK X: [description] — COMPLETE"
+```
+
+Then update SESSION_STATE.md:
+```bash
+cat > SESSION_STATE.md << 'EOF'
+# SESSION STATE
+## Last completed task: TASK X
+## Next task: TASK Y
+## Files modified: index.html
+EOF
+git add SESSION_STATE.md && git commit -m "state: updated after TASK X"
+git push origin main
+```
+
+Push after every 2-3 tasks minimum.
+
+## Code Style
+
+- Vanilla JavaScript, named functions (not arrow), match existing patterns
+- CSS custom properties in :root {}
+- New HTML inside `<div id="app">` or as overlay modals
+- Modals: fixed position, backdrop blur, .open class toggle
+
+## Key Existing Functions (DO NOT DELETE OR RENAME)
+
+fetchWeather(), calculateFishingScore(), calculateSpeciesScores(),
+computeSolunar(), renderForecast(), renderSpecies(), renderCatchLog(),
+renderMap(), renderPremium(), switchScreen(), openLakeModal(),
+closeLakeModal(), selectLake(), validateToken(), checkExistingSession(),
+dismissGate(), startSessionTimer(), initMap(), init()
+
+## Key Data
+
+- LAKES[] — array of lake objects with id, name, lat, lng, species
+- EVAL_TOKENS{} — token auth (DO NOT MODIFY unless task says to)
+- state{} — currentLake, weather, solunar

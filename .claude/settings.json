@@ -1,0 +1,50 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(gh *)",
+      "Bash(cat *)",
+      "Bash(ls *)",
+      "Bash(wc *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(grep *)",
+      "Bash(find *)",
+      "Bash(open *)",
+      "Bash(curl *)",
+      "Bash(cp *)",
+      "Bash(mkdir *)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(sudo *)",
+      "Bash(chmod 777 *)",
+      "Bash(kill *)",
+      "Bash(pkill *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd ~/barnes-lake-fishing && if git diff --quiet 2>/dev/null; then true; else CHANGED=$(git diff --stat --shortstat 2>/dev/null | tail -1); echo \"📝 Uncommitted: $CHANGED\"; fi",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "cd ~/barnes-lake-fishing && if ! git diff --quiet 2>/dev/null; then git add -A && git commit -m 'AUTO-SAVE: session ending with uncommitted work' && git push origin main 2>/dev/null && echo '🔒 Auto-saved and pushed uncommitted work'; fi",
+        "timeout": 15
+      }
+    ]
+  }
+}
