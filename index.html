@@ -1138,6 +1138,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
                     <label>Notes</label>
                     <textarea id="catch-notes" placeholder="Location, conditions, technique..." rows="2"></textarea>
                 </div>
+                <button type="button" onclick="showToast('Photo catch logging coming in v2')" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 14px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px dashed var(--border);color:var(--text-muted);font-size:13px;cursor:pointer;font-family:inherit;width:100%">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    Add Photo <span style="font-size:10px;letter-spacing:1px;color:var(--gold);margin-left:4px">COMING IN V2</span>
+                </button>
                 <button class="catch-save-btn" onclick="saveCatch()">Save Catch</button>
             </div>
         </div>
@@ -1661,28 +1665,10 @@ function renderSpecies() {
 
 function renderCatchLog() {
     const el = document.getElementById('screen-log');
-    const saved = getCatches();
-    const allEntries = saved.length > 0 ? saved : null;
+    const saved = getCatches().sort(function(a,b){ return (b.timestamp||0)-(a.timestamp||0); });
 
-    const demoHTML = allEntries ? '' : CATCH_LOG.map(function(c) { return `
-        <div class="catch-entry">
-            <div class="catch-header">
-                <div><div class="catch-species">${c.species}</div><div class="catch-meta">${c.lake} · ${c.date}</div></div>
-                <div class="catch-badges">
-                    ${c.weight ? `<span class="catch-badge weight">${c.weight}</span>` : ''}
-                    ${c.length ? `<span class="catch-badge length">${c.length}</span>` : ''}
-                </div>
-            </div>
-            <div class="catch-details">
-                <span class="catch-detail" style="color:var(--text-muted)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${c.time}</span>
-                <span class="catch-detail" style="color:var(--gold-light)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1"/></svg> ${c.bait}</span>
-            </div>
-            ${c.notes ? `<div class="catch-notes">"${c.notes}"</div>` : ''}
-        </div>
-    `;}).join('');
-
-    const savedHTML = allEntries ? allEntries.map(function(c) { return `
-        <div class="catch-entry">
+    const entriesHTML = saved.length > 0 ? saved.map(function(c) { return `
+        <div class="catch-entry" onclick="editCatch(${c.id})" style="cursor:pointer">
             <div class="catch-header">
                 <div>
                     <div class="catch-species">${c.species}</div>
@@ -1696,15 +1682,21 @@ function renderCatchLog() {
             <div class="catch-details">
                 ${c.bait ? `<span class="catch-detail" style="color:var(--gold-light)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1"/></svg> ${c.bait}</span>` : ''}
                 ${c.depth ? `<span class="catch-detail" style="color:var(--text-muted)">↓ ${c.depth}ft</span>` : ''}
-                <button class="catch-delete-btn" onclick="deleteCatch(${c.id})">Delete</button>
+                <button class="catch-delete-btn" onclick="event.stopPropagation();deleteCatch(${c.id})">Delete</button>
             </div>
             ${c.notes ? `<div class="catch-notes">"${c.notes}"</div>` : ''}
         </div>
-    `;}).join('') : '';
+    `;}).join('') : `
+        <div class="catch-empty">
+            <div class="catch-empty-icon">🎣</div>
+            <div class="catch-empty-title">No catches logged yet</div>
+            <div class="catch-empty-sub">Tap <strong>+ Log Catch</strong> above to record your first catch. Track weight, length, bait, depth, and notes for every fish.</div>
+        </div>
+    `;
 
-    const totalCount = allEntries ? allEntries.length : 47;
-    const bestWeight = allEntries ? (allEntries.reduce(function(b, c) { return (c.weight || 0) > b ? (c.weight || 0) : b; }, 0) + ' lbs') : '12.4 lbs';
-    const monthCount = allEntries ? allEntries.filter(function(c) { return Date.now() - c.timestamp < 30*24*60*60*1000; }).length : 8;
+    const totalCount = saved.length;
+    const bestWeight = saved.length ? (saved.reduce(function(b,c){ return (c.weight||0)>b?(c.weight||0):b; }, 0) + ' lbs') : '—';
+    const monthCount = saved.filter(function(c){ return Date.now()-c.timestamp < 30*24*60*60*1000; }).length;
 
     el.innerHTML = `
         <div class="flex justify-between items-center" style="padding:16px 4px 8px">
@@ -1720,7 +1712,7 @@ function renderCatchLog() {
             <div class="glass stat-card" style="padding:14px 12px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg><div class="stat-value">${monthCount}</div><div class="stat-label">THIS MONTH</div></div>
         </div>
         <div class="glass" style="padding:4px 16px;margin-top:12px">
-            ${savedHTML || demoHTML}
+            ${entriesHTML}
         </div>
     `;
 }
@@ -2263,15 +2255,32 @@ function closeSpeciesDetail(event) {
 }
 
 // ─── Catch Log ────────────────────────────────────────────────────────────────
-function openCatchModal() {
+let editingCatchId = null;
+
+function openCatchModal(catchObj) {
     const modal = document.getElementById('catch-modal');
+    const header = modal.querySelector('.catch-sheet-header h3');
     const select = document.getElementById('catch-species');
     select.innerHTML = '<option value="">Select species...</option>' +
         state.currentLake.species.map(function(s) { return `<option value="${s}">${s}</option>`; }).join('');
+    if (catchObj) {
+        editingCatchId = catchObj.id;
+        header.textContent = 'Edit Catch';
+        select.value = catchObj.species || '';
+        document.getElementById('catch-weight').value = catchObj.weight || '';
+        document.getElementById('catch-length').value = catchObj.length || '';
+        document.getElementById('catch-bait').value = catchObj.bait || '';
+        document.getElementById('catch-depth').value = catchObj.depth || '';
+        document.getElementById('catch-notes').value = catchObj.notes || '';
+    } else {
+        editingCatchId = null;
+        header.textContent = 'Log a Catch';
+    }
     modal.classList.add('open');
 }
 function closeCatchModal() {
     document.getElementById('catch-modal').classList.remove('open');
+    editingCatchId = null;
     ['catch-species','catch-weight','catch-length','catch-bait','catch-depth','catch-notes'].forEach(function(id) {
         const el = document.getElementById(id);
         if (el) el.value = '';
@@ -2280,24 +2289,27 @@ function closeCatchModal() {
 function saveCatch() {
     const species = document.getElementById('catch-species').value;
     if (!species) { showToast('Please select a species first'); return; }
-    const entry = {
-        id: Date.now(),
+    const data = {
         species: species,
         weight: parseFloat(document.getElementById('catch-weight').value) || null,
         length: parseFloat(document.getElementById('catch-length').value) || null,
         bait: document.getElementById('catch-bait').value.trim() || null,
         depth: parseFloat(document.getElementById('catch-depth').value) || null,
         notes: document.getElementById('catch-notes').value.trim() || null,
-        lake: state.currentLake.name,
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
-        timestamp: Date.now()
     };
-    const catches = getCatches();
-    catches.unshift(entry);
+    let catches = getCatches();
+    if (editingCatchId) {
+        catches = catches.map(function(c) { return c.id === editingCatchId ? Object.assign({}, c, data) : c; });
+    } else {
+        catches.unshift(Object.assign({ id: Date.now(), lake: state.currentLake.name, date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }), timestamp: Date.now() }, data));
+    }
     localStorage.setItem('fc_catches', JSON.stringify(catches));
     closeCatchModal();
     renderCatchLog();
+}
+function editCatch(id) {
+    const c = getCatches().find(function(c) { return c.id === id; });
+    if (c) openCatchModal(c);
 }
 function getCatches() {
     try { return JSON.parse(localStorage.getItem('fc_catches') || '[]'); } catch(e) { return []; }
