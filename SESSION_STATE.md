@@ -1,32 +1,41 @@
 # SESSION STATE
-## Last completed: PROMPT 1 — Emergency Species Data Accuracy Fix (TASKS 1.1–1.5)
-## Next: PROMPT 2 — Backend API Server on CORTEX (~/fishcast-api)
-## Date: 2026-02-24
+## Last completed: PROMPT 4 — Affiliate + Bait Shop Commerce
+## Next: PROMPT 5 — Frontend → API Migration (~/barnes-lake-fishing)
+## Date: 2026-02-25
 
-## PROMPT 1 COMPLETED (all 5 tasks):
-- 1.1 Research: All 7 species verified via Barnes Lake Club annual reports, fishing
-      contest records, Michigan Sportsman Forum. Smallmouth Bass CONFIRMED (explicit
-      contest category). Crappie/Walleye/Perch all actively stocked by Club.
-- 1.2 SPECIES_DB replaced with rich, source-cited data structure:
-      tempRange, seasonGrid[12], baits[] (objects w/ Amazon links), tips[], recipe{},
-      regulations, source, proLocked
-- 1.3 Species cards: Verified badge, specific bait names, all cards now tappable
-      (PRO-locked cards open detail sheet with PRO banner, not just a toast)
-- 1.4 Detail sheet expanded: Technique, Baits+Links, Targeting Info, Seasonal Calendar
-      (12-month grid), MI DNR Regulations, Barnes Lake-specific Pro Tips, Recipe Card,
-      Data Source footer
-- 1.5 Committed and pushed: commit 10d8cd0
+## BACKEND STATUS (66sith/fishcast-api):
+- Port: 3501 (3500 = nginx/centcom)
+- DB: VAULT 192.168.50.183:5432/fishcast
+- Public: api.wasubihq.com (Cloudflare tunnel)
+- PM2: fishcast-api (id=1), online
+- Anthropic key: loaded — account needs credits for Claude extraction
+- Tavily key: working ✓
+- Amazon tag: fishcastpro-20
 
-## Files modified: index.html
+## COMPLETED PROMPTS:
+- PROMPT 1: Verified species data, rich detail sheets, recipe cards ✓
+- PROMPT 2: Express API, PostgreSQL schema, all endpoints, PM2, CF tunnel ✓
+- PROMPT 3: AI research pipeline (Tavily replaces Google), queue worker ✓
+- PROMPT 4: Affiliate links, Tavily bait shop discovery, click tracking ✓
 
-## Key facts for PROMPT 2:
-- Backend goes in NEW repo: ~/fishcast-api
-- CORTEX already has: PostgreSQL, Node.js, Python, Docker
-- API exposed via Cloudflare Tunnel → api.wasubihq.com
-- Port: 3500 (see CLAUDE.md prohibition on changing ports)
-- Associate tag for Amazon affiliate: fishcastpro-20
+## PROMPT 5 TASKS (frontend, ~/barnes-lake-fishing/index.html):
+- 5.1 FishcastAPI client module (API_BASE = https://api.wasubihq.com/api/v1)
+- 5.2 Replace hardcoded LAKES/SPECIES_DB with API calls + offline fallback
+- 5.3 Lake search modal with Tavily-backed results
+- 5.4 Bait shop slide-up panel (geolocation → /bait-shops/nearby)
+- 5.5 Catch log → API migration (localStorage fallback for offline)
+- 5.6 "Request Lake Research" feature
+- 5.7 Service worker update (cache v6, API caching strategy)
+- 5.8 Commit and push
 
-## PROMPT 2 DEPENDENCIES:
-- PostgreSQL already running on CORTEX ✓
-- Cloudflare already configured for other services ✓
-- npm/node.js already on CORTEX ✓
+## KEY API ENDPOINTS FOR PROMPT 5:
+GET  /api/v1/lakes
+GET  /api/v1/lakes/:id/species
+GET  /api/v1/lakes/search?q=
+POST /api/v1/lakes/request-research
+GET  /api/v1/bait-shops/nearby?lat=&lng=&radius=25
+GET  /api/v1/affiliate/link?q=
+POST /api/v1/catches (Bearer token)
+GET  /api/v1/catches (Bearer token)
+DELETE /api/v1/catches/:id (Bearer token)
+POST /api/v1/track/affiliate-click
