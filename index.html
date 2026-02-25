@@ -1240,6 +1240,32 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         </div>
     </div>
 
+    <!-- Pro Signup Modal -->
+    <div id="pro-signup-modal" class="catch-modal">
+        <div class="catch-sheet">
+            <div class="catch-sheet-header">
+                <h3>Create Account</h3>
+                <button onclick="closeProSignup()">✕</button>
+            </div>
+            <div class="catch-sheet-body">
+                <div style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;line-height:1.5">
+                    Enter your email to create your FishCast account and start your 7-day free trial.
+                </div>
+                <div class="catch-field">
+                    <label>Name (optional)</label>
+                    <input type="text" id="pro-signup-name" placeholder="e.g. Al Miller" autocomplete="name">
+                </div>
+                <div class="catch-field">
+                    <label>Email *</label>
+                    <input type="email" id="pro-signup-email" placeholder="your@email.com" autocomplete="email">
+                </div>
+                <div id="pro-signup-error" style="font-size:12px;color:var(--score-poor);min-height:16px;margin-top:-4px;margin-bottom:8px"></div>
+                <button id="pro-signup-submit" class="catch-save-btn" onclick="submitProSignup()">Continue to Checkout</button>
+                <div style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:8px">No credit card required to create account</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Request Lake Research Modal -->
     <div id="request-lake-modal" class="catch-modal">
         <div class="catch-sheet">
@@ -1604,6 +1630,7 @@ let state = {
     loaded: false,
     lakes: [...LAKES],
     apiOnline: null,
+    proSession: null,
 };
 
 // ─── Score Engine ─────────────────────────────────────────────────────────────
@@ -2218,8 +2245,12 @@ function renderPremium() {
                 </div>
             `).join('')}
         </div>
-        <button class="cta-btn" style="margin-top:16px" onclick="showToast('Free trial coming soon. Pro features are unlocked during this evaluation period.')">Start 7-Day Free Trial</button>
-        <div class="cta-sub">Cancel anytime · No commitment · Instant access</div>
+        <div id="pro-upgrade-section" style="margin-top:16px">
+            ${state.proSession && state.proSession.isPro
+                ? '<div class="glass p-20" style="text-align:center"><div style="font-size:28px;margin-bottom:8px">🏆</div><div style="font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--gold)">You\'re a Pro member</div><div style="font-size:12px;color:var(--text-muted);margin-top:6px">' + (state.proSession.email || '') + '</div></div>'
+                : '<button class="cta-btn" onclick="openProSignup(\'annual\')">Start 7-Day Free Trial — $5.83/mo</button><div class="cta-sub">Cancel anytime · No commitment · Instant access</div><button onclick="openProSignup(\'monthly\')" style="margin-top:10px;display:block;width:100%;padding:12px;border-radius:10px;background:none;border:1px solid var(--border);color:var(--text-secondary);font-size:13px;font-family:inherit;cursor:pointer">Monthly — $9.99/mo</button>'
+            }
+        </div>
     `;
 }
 
@@ -2543,6 +2574,8 @@ function init() {
     }
     setupOfflineBanner();
     getUserToken(); // ensure token exists
+    loadProSession(); // restore Pro account state
+    checkStripeReturn(); // handle post-checkout redirect
     loadLakesFromAPI(); // non-blocking — background fetch
     const session = checkExistingSession();
     if (session) {
@@ -3034,6 +3067,110 @@ async function openRecipeBook() {
 
 function closeRecipeBook() {
     document.getElementById('recipe-book-panel').classList.remove('open');
+}
+
+// ─── 7: Pro Signup + Stripe ───────────────────────────────────────────────────
+let selectedPlan = 'annual';
+
+function loadProSession() {
+    try {
+        const raw = localStorage.getItem('fc_pro_session');
+        if (raw) {
+            const s = JSON.parse(raw);
+            state.proSession = s;
+        }
+    } catch(e) {}
+}
+
+function openProSignup(plan) {
+    selectedPlan = plan || 'annual';
+    document.getElementById('pro-signup-email').value = '';
+    document.getElementById('pro-signup-name').value = '';
+    document.getElementById('pro-signup-error').textContent = '';
+    document.getElementById('pro-signup-modal').classList.add('open');
+    setTimeout(function() {
+        const input = document.getElementById('pro-signup-email');
+        if (input) input.focus();
+    }, 300);
+}
+
+function closeProSignup() {
+    document.getElementById('pro-signup-modal').classList.remove('open');
+}
+
+async function submitProSignup() {
+    const email = document.getElementById('pro-signup-email').value.trim();
+    const name = document.getElementById('pro-signup-name').value.trim();
+    const errEl = document.getElementById('pro-signup-error');
+    const btn = document.getElementById('pro-signup-submit');
+    if (!email || !email.includes('@')) { errEl.textContent = 'Please enter a valid email.'; return; }
+    errEl.textContent = '';
+    btn.disabled = true;
+    btn.textContent = 'Creating account...';
+    try {
+        // Register / get JWT
+        const regData = await apiPost('/auth/register', { email, name });
+        if (regData && regData.token) {
+            localStorage.setItem('fc_pro_session', JSON.stringify({
+                token: regData.token,
+                email: regData.user.email,
+                name: regData.user.name,
+                isPro: regData.user.isPro
+            }));
+            state.proSession = { token: regData.token, email: regData.user.email, isPro: regData.user.isPro };
+
+            if (regData.user.isPro) {
+                closeProSignup();
+                showToast('Welcome back, Pro member! ✓');
+                renderPremium();
+                return;
+            }
+
+            // Try Stripe checkout
+            btn.textContent = 'Opening checkout...';
+            try {
+                const checkoutData = await apiPost('/stripe/checkout', { plan: selectedPlan }, regData.token);
+                if (checkoutData && checkoutData.url) {
+                    closeProSignup();
+                    window.location.href = checkoutData.url;
+                    return;
+                }
+            } catch(stripeErr) {
+                // Stripe not configured yet — show friendly message
+                closeProSignup();
+                showToast('Account created! Stripe checkout coming soon — check back in 24hrs.');
+                renderPremium();
+            }
+        }
+    } catch(e) {
+        errEl.textContent = 'Unable to connect. Please try again.';
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Continue to Checkout';
+    }
+}
+
+// Check for Stripe redirect result on load
+function checkStripeReturn() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('sub') === 'success') {
+        showToast('🎉 Welcome to FishCast Pro!');
+        // Re-verify session via /auth/me
+        const sess = state.proSession;
+        if (sess && sess.token) {
+            apiGet('/auth/me').then(function(u) {
+                if (u) {
+                    const updated = Object.assign({}, sess, { isPro: u.isPro });
+                    localStorage.setItem('fc_pro_session', JSON.stringify(updated));
+                    state.proSession = updated;
+                }
+            }).catch(function() {});
+        }
+        // Clean URL
+        history.replaceState({}, '', window.location.pathname);
+    } else if (params.get('sub') === 'cancel') {
+        history.replaceState({}, '', window.location.pathname);
+    }
 }
 
 // ─── 5.6 Request Lake Research ────────────────────────────────────────────────
