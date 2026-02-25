@@ -1,39 +1,32 @@
-# SESSION STATE — ALL PHASES COMPLETE
-## Status: QA + POLISH + FINAL TOUCHES DONE
+# SESSION STATE
+## Last completed: PROMPT 1 — Emergency Species Data Accuracy Fix (TASKS 1.1–1.5)
+## Next: PROMPT 2 — Backend API Server on CORTEX (~/fishcast-api)
 ## Date: 2026-02-24
-## All functionality verified and polished
-## Service worker bumped to v5
-## Console clean, mobile tested, performance checked
-## Ready for evaluator distribution
 
-## COMPLETED THIS SESSION (23 tasks):
-### Phase 1 QA (10 tasks):
-- 1.1 Gate: PASS
-- 1.2 Forecast: PASS
-- 1.3 Species: FIXED — locked species shows upgrade toast (not detail sheet)
-- 1.4 Catch Log: FIXED — alert() → showToast() for validation
-- 1.5 Map: FIXED — initMap()/setMapStyle() layer-stacking bug resolved
-- 1.6 Settings: PASS
-- 1.7 Notification Bell: PASS
-- 1.8 Lake Selector: PASS
-- 1.9 Pro Tab: PASS
-- 1.10 Navigation: PASS
+## PROMPT 1 COMPLETED (all 5 tasks):
+- 1.1 Research: All 7 species verified via Barnes Lake Club annual reports, fishing
+      contest records, Michigan Sportsman Forum. Smallmouth Bass CONFIRMED (explicit
+      contest category). Crappie/Walleye/Perch all actively stocked by Club.
+- 1.2 SPECIES_DB replaced with rich, source-cited data structure:
+      tempRange, seasonGrid[12], baits[] (objects w/ Amazon links), tips[], recipe{},
+      regulations, source, proLocked
+- 1.3 Species cards: Verified badge, specific bait names, all cards now tappable
+      (PRO-locked cards open detail sheet with PRO banner, not just a toast)
+- 1.4 Detail sheet expanded: Technique, Baits+Links, Targeting Info, Seasonal Calendar
+      (12-month grid), MI DNR Regulations, Barnes Lake-specific Pro Tips, Recipe Card,
+      Data Source footer
+- 1.5 Committed and pushed: commit 10d8cd0
 
-### Phase 2 Polish (8 tasks):
-- 2.1 Shimmer loading states during weather fetch
-- 2.2 Manual refresh button on forecast hero card
-- 2.3 Catch log: edit on tap, empty state, sort newest-first, photo placeholder
-- 2.4 Depth gradient overlay on map
-- 2.5 Score count-up animation (0 → score.total)
-- 2.6 focus-visible outlines for accessibility
-- 2.7 Offline banner with online/offline event listeners
-- 2.8 Session timer: amber <10min, red+pulse <5min, expiry overlay (no reload)
+## Files modified: index.html
 
-### Phase 3 Final (5 tasks):
-- 3.1 SW cache bump v4 → v5
-- 3.2 Console clean (confirmed zero console.log debug statements)
-- 3.3 Mobile responsive: small phone breakpoint, iOS zoom fix
-- 3.4 Map cleanup on tab switch (WebGL memory)
-- 3.5 This final state update + push
+## Key facts for PROMPT 2:
+- Backend goes in NEW repo: ~/fishcast-api
+- CORTEX already has: PostgreSQL, Node.js, Python, Docker
+- API exposed via Cloudflare Tunnel → api.wasubihq.com
+- Port: 3500 (see CLAUDE.md prohibition on changing ports)
+- Associate tag for Amazon affiliate: fishcastpro-20
 
-## Files modified: index.html, sw.js
+## PROMPT 2 DEPENDENCIES:
+- PostgreSQL already running on CORTEX ✓
+- Cloudflare already configured for other services ✓
+- npm/node.js already on CORTEX ✓
