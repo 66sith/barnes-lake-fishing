@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fishcast-pro-v5';
+const CACHE_NAME = 'fishcast-pro-v6';
 const ASSETS = [
   '/',
   '/index.html',
@@ -21,8 +21,8 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
-  // Network-first for API calls
-  if (url.hostname === 'api.open-meteo.com') {
+  // Network-first for API calls (weather + FishCast API)
+  if (url.hostname === 'api.open-meteo.com' || url.hostname === 'api.wasubihq.com') {
     e.respondWith(
       fetch(e.request).then(r => {
         const clone = r.clone();

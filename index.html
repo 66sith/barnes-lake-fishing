@@ -504,6 +504,42 @@ body {
     color: var(--text-muted); font-size: 13px; font-family: var(--font-body);
 }
 
+/* ─── Bait Shop Panel ──────────────────────────────────────────── */
+.bait-shop-panel {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
+    display: none; align-items: flex-end;
+}
+.bait-shop-panel.open { display: flex; animation: fadeIn 0.2s var(--ease); }
+.bait-shop-sheet {
+    width: 100%; max-height: 75dvh;
+    background: var(--bg-mid); border-top: 1px solid var(--border-light);
+    border-radius: var(--radius) var(--radius) 0 0;
+    animation: slideUp 0.3s var(--spring);
+    display: flex; flex-direction: column;
+}
+.bait-shop-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.bait-shop-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; }
+.bait-shop-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+.bait-shop-close { background: none; border: none; color: var(--text-secondary); font-size: 18px; cursor: pointer; padding: 0; }
+.bait-shop-content { flex: 1; overflow-y: auto; padding: 12px 16px 20px; -webkit-overflow-scrolling: touch; }
+.bait-shop-card {
+    padding: 14px 0; border-bottom: 1px solid var(--border);
+}
+.bait-shop-card:last-child { border-bottom: none; }
+.bait-shop-name { font-size: 15px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; justify-content: space-between; }
+.bait-shop-dist { font-size: 11px; font-weight: 500; color: var(--teal); background: var(--teal-dim); padding: 2px 7px; border-radius: 10px; }
+.bait-shop-meta { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+.bait-shop-phone { display: block; font-size: 13px; color: var(--gold); margin-top: 5px; text-decoration: none; }
+.bait-shop-hours { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+.bait-shop-tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.bait-tag { font-size: 11px; padding: 3px 8px; border-radius: 8px; background: rgba(255,255,255,0.05); color: var(--text-secondary); }
+.bait-shop-website { display: inline-block; margin-top: 6px; font-size: 12px; color: var(--teal); text-decoration: none; }
+
 /* ─── Ambient Glow ─────────────────────────────────────────────── */
 .ambient-gold, .ambient-teal {
     position: fixed; pointer-events: none; border-radius: 50%; z-index: 0;
@@ -1176,6 +1212,44 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         </div>
     </div>
 
+    <!-- Bait Shop Panel -->
+    <div id="bait-shop-panel" class="bait-shop-panel">
+        <div class="bait-shop-sheet">
+            <div class="bait-shop-header">
+                <div>
+                    <div class="bait-shop-title">Nearby Bait Shops</div>
+                    <div class="bait-shop-subtitle">Within 25 miles of your location</div>
+                </div>
+                <button class="bait-shop-close" onclick="closeBaitShopPanel()">✕</button>
+            </div>
+            <div id="bait-shop-content" class="bait-shop-content"></div>
+        </div>
+    </div>
+
+    <!-- Request Lake Research Modal -->
+    <div id="request-lake-modal" class="catch-modal">
+        <div class="catch-sheet">
+            <div class="catch-sheet-header">
+                <h3>Add New Lake</h3>
+                <button onclick="closeRequestLakeModal()">✕</button>
+            </div>
+            <div class="catch-sheet-body">
+                <div style="font-size:12px;color:var(--text-secondary);margin-bottom:16px;line-height:1.5">
+                    Don't see your lake? Request AI-powered research. We'll gather species data, fishing reports, regulations, and bait intel within 24 hours.
+                </div>
+                <div class="catch-field">
+                    <label>Lake Name *</label>
+                    <input type="text" id="req-lake-name" placeholder="e.g. Lobdell Lake" autocomplete="off">
+                </div>
+                <div class="catch-field">
+                    <label>County</label>
+                    <input type="text" id="req-lake-county" placeholder="e.g. Genesee County, MI" autocomplete="off">
+                </div>
+                <button id="req-lake-submit" class="catch-save-btn" onclick="submitLakeRequest()">Queue Research</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Log Catch Modal -->
     <div id="catch-modal" class="catch-modal">
         <div class="catch-sheet">
@@ -1514,6 +1588,8 @@ let state = {
     speciesScores: [],
     mapInstance: null,
     loaded: false,
+    lakes: [...LAKES],
+    apiOnline: null,
 };
 
 // ─── Score Engine ─────────────────────────────────────────────────────────────
@@ -2036,6 +2112,10 @@ function renderMap() {
             <div class="section-title mb-12">SPECIES PRESENT</div>
             <div class="species-chip-list">${lake.species.map(s => `<span class="species-chip">${s}</span>`).join('')}</div>
         </div>
+        <button onclick="openBaitShopPanel()" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:12px;padding:15px;border-radius:var(--radius);background:linear-gradient(135deg,rgba(0,212,170,0.12),rgba(0,212,170,0.06));border:1px solid rgba(0,212,170,0.25);color:var(--teal);font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;letter-spacing:0.02em">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Find Nearby Bait Shops
+        </button>
     `;
     setTimeout(initMap, 100);
 }
@@ -2145,36 +2225,40 @@ function switchScreen(name) {
 // ─── Lake Modal ───────────────────────────────────────────────────────────────
 function renderLakeList(filter) {
     const q = (filter || '').toLowerCase();
-    const filtered = LAKES.filter(function(l) {
-        return !q || l.name.toLowerCase().includes(q) || l.location.toLowerCase().includes(q);
+    const src = state.lakes.length ? state.lakes : LAKES;
+    const filtered = src.filter(function(l) {
+        return !q || l.name.toLowerCase().includes(q) || (l.location || '').toLowerCase().includes(q);
     });
     return filtered.map(function(l) {
-        return `<button class="lake-option ${l.id===state.currentLake.id?'selected':''}" onclick="selectLake(${l.id})">
-            <div class="lake-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M2 15c6.667-6 13.333 0 20-6"/><path d="M2 19c6.667-6 13.333 0 20-6"/></svg></div>
-            <div style="flex:1"><div class="lake-option-name">${l.name}</div><div class="lake-option-meta">${l.location} · ${l.acres} acres</div></div>
-            ${l.id===state.currentLake.id ? '<div class="lake-selected-dot"></div>' : ''}
-        </button>`;
+        const meta = l.location + (l.acres ? ' · ' + l.acres + ' acres' : '');
+        return '<button class="lake-option ' + (l.id===state.currentLake.id?'selected':'') + '" onclick="selectLake(' + l.id + ')">' +
+            '<div class="lake-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M2 15c6.667-6 13.333 0 20-6"/><path d="M2 19c6.667-6 13.333 0 20-6"/></svg></div>' +
+            '<div style="flex:1"><div class="lake-option-name">' + l.name + '</div><div class="lake-option-meta">' + meta + '</div></div>' +
+            (l.id===state.currentLake.id ? '<div class="lake-selected-dot"></div>' : '') +
+            '</button>';
     }).join('') || '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:13px">No lakes found</div>';
 }
 
 function openLakeModal() {
     const modal = document.getElementById('lake-modal');
     const sheet = document.getElementById('lake-sheet');
-    sheet.innerHTML = `
-        <div class="lake-sheet-header">
-            <div class="lake-sheet-title">Select Lake</div>
-            <button class="lake-close-btn" onclick="closeLakeModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-        </div>
-        <div class="lake-search">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input id="lake-search-input" type="text" placeholder="Search lakes..." autocomplete="off"
-                style="background:none;border:none;outline:none;color:var(--text-primary);font-size:13px;font-family:inherit;flex:1"
-                oninput="document.getElementById('lake-list-items').innerHTML=renderLakeList(this.value)">
-        </div>
-        <div class="lake-list-label">ALL LAKES</div>
-        <div id="lake-list-items">${renderLakeList('')}</div>
-        <button class="add-lake-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add New Lake</button>
-    `;
+    const statusLabel = state.apiOnline === false ? ' <span style="color:var(--score-fair);font-size:10px">OFFLINE</span>' : (state.apiOnline ? ' <span style="color:var(--teal);font-size:10px">LIVE</span>' : '');
+    sheet.innerHTML =
+        '<div class="lake-sheet-header">' +
+            '<div class="lake-sheet-title">Select Lake' + statusLabel + '</div>' +
+            '<button class="lake-close-btn" onclick="closeLakeModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>' +
+        '</div>' +
+        '<div class="lake-search">' +
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
+            '<input id="lake-search-input" type="text" placeholder="Search lakes..." autocomplete="off"' +
+            ' style="background:none;border:none;outline:none;color:var(--text-primary);font-size:13px;font-family:inherit;flex:1"' +
+            ' oninput="apiSearchLakes(this.value)">' +
+        '</div>' +
+        '<div class="lake-list-label">ALL LAKES</div>' +
+        '<div id="lake-list-items">' + renderLakeList('') + '</div>' +
+        '<button class="add-lake-btn" onclick="openRequestLakeModal()">' +
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add New Lake' +
+        '</button>';
     modal.classList.add('open');
     setTimeout(function() {
         const input = document.getElementById('lake-search-input');
@@ -2183,8 +2267,10 @@ function openLakeModal() {
 }
 function closeLakeModal() { document.getElementById('lake-modal').classList.remove('open'); }
 function selectLake(id) {
-    state.currentLake = LAKES.find(l => l.id === id);
-    document.getElementById('header-lake-name').textContent = state.currentLake.name;
+    const lake = state.lakes.find(function(l) { return l.id === id; }) || LAKES.find(function(l) { return l.id === id; });
+    if (!lake) return;
+    state.currentLake = lake;
+    document.getElementById('header-lake-name').textContent = lake.name;
     closeLakeModal();
     loadData();
 }
@@ -2434,6 +2520,8 @@ function init() {
         navigator.serviceWorker.register('sw.js').catch(function(e) { console.error('SW reg failed:', e); });
     }
     setupOfflineBanner();
+    getUserToken(); // ensure token exists
+    loadLakesFromAPI(); // non-blocking — background fetch
     const session = checkExistingSession();
     if (session) {
         dismissGate();
@@ -2678,6 +2766,7 @@ function saveCatch() {
         catches.unshift(Object.assign({ id: Date.now(), lake: state.currentLake.name, date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }), time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }), timestamp: Date.now() }, data));
     }
     localStorage.setItem('fc_catches', JSON.stringify(catches));
+    if (!editingCatchId) syncCatchToAPI(data);
     closeCatchModal();
     renderCatchLog();
 }
@@ -2733,6 +2822,236 @@ function loadSettingsState() {
     const solEl = document.getElementById('setting-solunar');
     if (peakEl) peakEl.checked = s.peakAlerts !== false;
     if (solEl) solEl.checked = s.solunarReminders !== false;
+}
+
+// ═══ FISHCAST API CLIENT ═════════════════════════════════════════════════════
+const API_BASE = 'https://api.wasubihq.com/api/v1';
+
+function getUserToken() {
+    let token = localStorage.getItem('fc_user_token');
+    if (!token) {
+        token = 'fc-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('fc_user_token', token);
+    }
+    return token;
+}
+
+async function apiGet(path) {
+    const ctrl = new AbortController();
+    const timeout = setTimeout(function() { ctrl.abort(); }, 6000);
+    try {
+        const r = await fetch(API_BASE + path, { signal: ctrl.signal });
+        clearTimeout(timeout);
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const j = await r.json();
+        return j.data;
+    } catch(e) {
+        clearTimeout(timeout);
+        throw e;
+    }
+}
+
+async function apiPost(path, body, authToken) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+    const r = await fetch(API_BASE + path, { method: 'POST', headers: headers, body: JSON.stringify(body) });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    return j.data;
+}
+
+async function apiDelete(path, authToken) {
+    const headers = {};
+    if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+    const r = await fetch(API_BASE + path, { method: 'DELETE', headers: headers });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    return j.data;
+}
+
+async function loadLakesFromAPI() {
+    try {
+        const lakes = await apiGet('/lakes');
+        if (lakes && lakes.length) {
+            state.lakes = lakes.map(function(l) {
+                return {
+                    id: l.id,
+                    name: l.name,
+                    location: (l.county ? l.county + ', ' : '') + (l.state || 'MI'),
+                    acres: parseInt(l.acres) || 0,
+                    maxDepth: parseInt(l.max_depth) || 0,
+                    lat: parseFloat(l.latitude) || 0,
+                    lng: parseFloat(l.longitude) || 0,
+                    species: [],
+                    saved: true,
+                    species_count: parseInt(l.species_count) || 0
+                };
+            });
+            state.apiOnline = true;
+            const matched = state.lakes.find(function(l) { return l.id === state.currentLake.id; });
+            if (matched) state.currentLake = matched;
+            // Cache for offline fallback
+            localStorage.setItem('fc_lakes_cache', JSON.stringify(state.lakes));
+        }
+    } catch(e) {
+        console.warn('[FishcastAPI] Lakes offline:', e.message);
+        state.apiOnline = false;
+        // Try cached lakes
+        try {
+            const cached = JSON.parse(localStorage.getItem('fc_lakes_cache') || '[]');
+            if (cached.length) state.lakes = cached;
+        } catch(_) {}
+    }
+}
+
+// ─── 5.5 Catch log → API sync (best-effort, localStorage primary) ─────────────
+function syncCatchToAPI(catchData) {
+    if (state.apiOnline === false) return;
+    const lake = state.currentLake;
+    const payload = {
+        bait_used: catchData.bait || null,
+        weight_lbs: catchData.weight || null,
+        length_inches: catchData.length || null,
+        depth_ft: catchData.depth || null,
+        notes: catchData.notes || null
+    };
+    // Try to find lake_id and species_id from the current context
+    if (lake && lake.id) payload.lake_id = lake.id;
+    apiPost('/catches', payload, getUserToken()).catch(function() { /* silent fail — localStorage is source of truth */ });
+}
+
+// ─── 5.4 Bait Shop Panel ──────────────────────────────────────────────────────
+function openBaitShopPanel() {
+    const panel = document.getElementById('bait-shop-panel');
+    const content = document.getElementById('bait-shop-content');
+    panel.classList.add('open');
+    content.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-secondary)"><div style="font-size:24px;margin-bottom:8px">📍</div><div>Getting your location...</div></div>';
+    if (!navigator.geolocation) {
+        content.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted)">Geolocation not available on this device.</div>';
+        return;
+    }
+    navigator.geolocation.getCurrentPosition(
+        function(pos) { fetchBaitShops(pos.coords.latitude, pos.coords.longitude); },
+        function(err) {
+            // Fallback: use current lake coords
+            fetchBaitShops(state.currentLake.lat, state.currentLake.lng);
+        },
+        { timeout: 8000, maximumAge: 300000 }
+    );
+}
+
+async function fetchBaitShops(lat, lng) {
+    const content = document.getElementById('bait-shop-content');
+    try {
+        const shops = await apiGet('/bait-shops/nearby?lat=' + lat + '&lng=' + lng + '&radius=25');
+        if (!shops || !shops.length) {
+            content.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted)"><div style="font-size:20px;margin-bottom:8px">🪣</div>No bait shops found within 25 miles.<br><span style="font-size:11px">Our AI will search and cache results next time you\'re online.</span></div>';
+            return;
+        }
+        content.innerHTML = shops.map(function(s) {
+            const distStr = s.distance_miles ? s.distance_miles + ' mi' : '';
+            return '<div class="bait-shop-card">' +
+                '<div class="bait-shop-name">' + s.name + (distStr ? '<span class="bait-shop-dist">' + distStr + '</span>' : '') + '</div>' +
+                (s.address ? '<div class="bait-shop-meta">' + s.address + ', ' + s.city + '</div>' : '<div class="bait-shop-meta">' + s.city + ', ' + s.state + '</div>') +
+                (s.phone ? '<a class="bait-shop-phone" href="tel:' + s.phone + '">' + s.phone + '</a>' : '') +
+                (s.hours ? '<div class="bait-shop-hours">' + s.hours + '</div>' : '') +
+                '<div class="bait-shop-tags">' +
+                (s.has_live_bait ? '<span class="bait-tag">🪱 Live Bait</span>' : '') +
+                (s.has_tackle ? '<span class="bait-tag">🎣 Tackle</span>' : '') +
+                '</div>' +
+                (s.website ? '<a class="bait-shop-website" href="' + s.website + '" target="_blank" rel="noopener">Visit Website →</a>' : '') +
+                '</div>';
+        }).join('');
+    } catch(e) {
+        content.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted)">Unable to load bait shops — check connection.</div>';
+    }
+}
+
+function closeBaitShopPanel() {
+    document.getElementById('bait-shop-panel').classList.remove('open');
+}
+
+// ─── 5.6 Request Lake Research ────────────────────────────────────────────────
+function openRequestLakeModal() {
+    const modal = document.getElementById('request-lake-modal');
+    document.getElementById('req-lake-name').value = '';
+    document.getElementById('req-lake-county').value = '';
+    modal.classList.add('open');
+    setTimeout(function() {
+        const input = document.getElementById('req-lake-name');
+        if (input) input.focus();
+    }, 300);
+}
+
+function closeRequestLakeModal() {
+    document.getElementById('request-lake-modal').classList.remove('open');
+}
+
+async function submitLakeRequest() {
+    const name = document.getElementById('req-lake-name').value.trim();
+    const county = document.getElementById('req-lake-county').value.trim();
+    if (!name) { showToast('Please enter a lake name'); return; }
+    const btn = document.getElementById('req-lake-submit');
+    btn.disabled = true;
+    btn.textContent = 'Queuing...';
+    try {
+        await apiPost('/lakes/request-research', { lake_name: name, county: county, state: 'MI' });
+        closeRequestLakeModal();
+        closeLakeModal();
+        showToast('✓ Research queued — check back in 24 hours');
+    } catch(e) {
+        showToast('Could not submit — check connection');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Queue Research';
+    }
+}
+
+// ─── 5.3 API lake search (debounced) ─────────────────────────────────────────
+let lakeSearchTimeout = null;
+
+function apiSearchLakes(q) {
+    clearTimeout(lakeSearchTimeout);
+    const listEl = document.getElementById('lake-list-items');
+    if (!listEl) return;
+    if (!q || q.length < 2) {
+        listEl.innerHTML = renderLakeList('');
+        return;
+    }
+    lakeSearchTimeout = setTimeout(async function() {
+        listEl.innerHTML = '<div style="padding:12px 16px;color:var(--text-muted);font-size:12px">Searching...</div>';
+        try {
+            const results = await apiGet('/lakes/search?q=' + encodeURIComponent(q));
+            if (results && results.length) {
+                // Merge into state.lakes cache if not already present
+                results.forEach(function(l) {
+                    if (!state.lakes.find(function(x) { return x.id === l.id; })) {
+                        state.lakes.push({
+                            id: l.id, name: l.name,
+                            location: (l.county ? l.county + ', ' : '') + (l.state || 'MI'),
+                            acres: parseInt(l.acres) || 0,
+                            maxDepth: parseInt(l.max_depth) || 0,
+                            lat: parseFloat(l.latitude) || 0,
+                            lng: parseFloat(l.longitude) || 0,
+                            species: [], saved: true,
+                            species_count: parseInt(l.species_count) || 0
+                        });
+                    }
+                });
+                listEl.innerHTML = results.map(function(l) {
+                    const loc = (l.county ? l.county + ', ' : '') + (l.state || 'MI');
+                    return '<button class="lake-option" onclick="selectLake(' + l.id + ')">' +
+                        '<div class="lake-option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M2 15c6.667-6 13.333 0 20-6"/><path d="M2 19c6.667-6 13.333 0 20-6"/></svg></div>' +
+                        '<div style="flex:1"><div class="lake-option-name">' + l.name + '</div><div class="lake-option-meta">' + loc + (l.acres ? ' · ' + l.acres + ' acres' : '') + '</div></div>' +
+                        '</button>';
+                }).join('');
+            } else {
+                listEl.innerHTML = '<div style="padding:12px 16px;color:var(--text-muted);font-size:13px">No lakes found — try "Add New Lake" below</div>';
+            }
+        } catch(e) {
+            listEl.innerHTML = renderLakeList(q);
+        }
+    }, 400);
 }
 
 document.addEventListener('DOMContentLoaded', init);
