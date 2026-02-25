@@ -796,6 +796,39 @@ body {
 .species-info-row:last-child { border-bottom: none; }
 .species-info-label { color: var(--text-secondary); }
 .species-info-value { font-weight: 600; color: var(--text-primary); }
+.species-verified-badge {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.3px;
+    color: #22c55e; background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.2); padding: 2px 6px; border-radius: 20px;
+}
+.pro-info-banner {
+    background: rgba(250,204,21,0.07); border: 1px solid rgba(250,204,21,0.2);
+    border-radius: 10px; padding: 10px 14px;
+    font-size: 12px; color: var(--gold-light); margin-bottom: 18px;
+}
+.season-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px; margin-top: 6px; }
+.season-cell { text-align: center; font-size: 9px; font-weight: 600; color: var(--text-muted); }
+.season-cell-bar { height: 6px; border-radius: 3px; margin-bottom: 2px; }
+.season-prime { background: #22c55e; }
+.season-fair { background: #f59e0b; }
+.season-slow { background: rgba(255,255,255,0.08); }
+.recipe-card {
+    background: rgba(251,191,36,0.05); border: 1px solid rgba(251,191,36,0.15); border-radius: 14px; padding: 16px;
+}
+.recipe-card-title { font-family: var(--font-display); font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--gold-light); }
+.recipe-method { font-size: 12px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 8px; }
+.recipe-tagline { font-size: 11px; font-style: italic; color: var(--text-muted); border-top: 1px solid rgba(251,191,36,0.1); padding-top: 8px; }
+.species-bait-chip-lure {
+    display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 8px;
+    background: rgba(20,184,166,0.08); border: 1px solid rgba(20,184,166,0.2);
+    font-size: 11px; font-weight: 600; color: var(--teal); text-decoration: none; margin: 3px;
+}
+.species-bait-chip-live {
+    display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; border-radius: 8px;
+    background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.2);
+    font-size: 11px; font-weight: 600; color: #22c55e; margin: 3px;
+}
 
 /* ─── Catch Modal ─────────────────────────────────────────────── */
 .catch-modal {
@@ -1268,13 +1301,200 @@ const LAKES = [
 ];
 
 const SPECIES_DB = [
-    { name:"Largemouth Bass", emoji:"🐟", depth:"8-15ft", technique:"Slow roll spinnerbaits near submerged timber", baits:["Spinnerbait","Jig & Trailer"], temp:"Prefers 65-80°F", pattern:"Holding near deep structure", premium:false },
-    { name:"Northern Pike", emoji:"🐊", depth:"6-12ft", technique:"Dead bait or large swimbaits worked slowly", baits:["Sucker Minnow","Swimbait"], temp:"Active in 55-75°F", pattern:"Cruising weed edges", premium:false },
-    { name:"Crappie", emoji:"🐠", depth:"15-25ft", technique:"Vertical jig with small plastics over deep brush", baits:["1/16oz Jig","Small Minnow"], temp:"Stacking in 50-65°F", pattern:"Schooled on deep structure", premium:false },
-    { name:"Bluegill", emoji:"🟡", depth:"10-18ft", technique:"Small jigs under slip float near weed edges", baits:["Wax Worm","Micro Jig"], temp:"Moderate in 45-65°F", pattern:"Scattered along weed lines", premium:true },
-    { name:"Walleye", emoji:"👁️", depth:"18-30ft", technique:"Jigging spoons at dusk over main lake basin", baits:["Jigging Rap","Live Minnow"], temp:"Peak at 55-68°F", pattern:"Moving shallow at dusk/dawn", premium:true },
-    { name:"Perch", emoji:"🟠", depth:"12-22ft", technique:"Small minnows on drop shot near sandy flats", baits:["Minnow","Perch Eye"], temp:"Active 50-70°F", pattern:"Roaming in schools on flats", premium:true },
-    { name:"Smallmouth Bass", emoji:"🟤", depth:"10-20ft", technique:"Drop shot with finesse worms on rocky points", baits:["Ned Rig","Tube Jig"], temp:"Best 60-75°F", pattern:"Holding on rocky structure", premium:true },
+    {
+        name: "Largemouth Bass", emoji: "🐟",
+        technique: "Slow-roll a swimbait along weed edges at dawn. Wacky-rig a Senko parallel to dock lines, let it fall on slack line. Topwater (frog or Whopper Plopper) in early morning low light. Drop shot along the deeper weed edge (8–12 ft) during summer heat.",
+        depth: "2–15ft (summer weed edges), 3–6ft (pre-spawn), 2–6ft (spawn)",
+        baits: [
+            { name: "Gary Yamamoto Senko 5\" (Green Pumpkin)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Gary+Yamamoto+Senko+5+Green+Pumpkin" },
+            { name: "Berkley MaxScent Flatnose Minnow 4\"", type: "lure", searchUrl: "https://www.amazon.com/s?k=Berkley+MaxScent+Flatnose+Minnow+4" },
+            { name: "Strike King KVD Sexy Frog (Black/Chartreuse)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Strike+King+KVD+Sexy+Frog+black+chartreuse" },
+            { name: "Live Shiner Minnows (4–6\")", type: "live", localBait: true },
+        ],
+        tempRange: [55, 80], seasonGrid: [0,0,1,2,2,1,1,1,2,2,1,0],
+        pattern: "Weed edges, dock pilings, fallen timber. Post-frontal: hold tight to heavy cover. Stable high pressure: active along weed edges at dawn/dusk.",
+        bestSeason: "May (pre-spawn), Sep–Oct (fall aggression)",
+        regulations: "14\" minimum, 5/day combined with smallmouth, possession season May 24 – March 31",
+        tips: [
+            "Barnes Lake largemouth stack under dock pilings along the east shoreline in summer — target docks with cross-members and clutter underneath.",
+            "After a cold front, go finesse: 4\" Senko wacky-rigged with no weight, dead-stick for 10 seconds after it hits bottom.",
+            "Best bite window: first 90 minutes of daylight and last 45 minutes before sunset."
+        ],
+        recipe: {
+            name: "Pan-Fried Largemouth Bass",
+            method: "Fillet, remove skin. Dredge in seasoned cornmeal (salt, pepper, garlic powder, cayenne). Fry in cast iron with butter + canola oil at 375F, 3 min per side until golden. Squeeze of lemon.",
+            tagline: "Simple, classic, perfect. The lake brought it — your kitchen finishes it."
+        },
+        source: "Barnes Lake Club Annual Report 2022-2023; Barnes Lake Club fishing contest",
+        proLocked: false
+    },
+    {
+        name: "Northern Pike", emoji: "🐊",
+        technique: "Open water: cast large bucktail spinners or swimbaits parallel to the weed edge and burn them back. Troll a Rapala Super Shad Rap along the outside weed line. Ice: large sucker minnow on tip-up at 4–10 ft near weed edge. Dawn and dusk are prime — pike hunt by sight in low light.",
+        depth: "2–15ft (weed edge ambush), 10–20ft (summer midday refuge)",
+        baits: [
+            { name: "Mepps Giant Killer #5 (Chartreuse/Silver)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Mepps+Giant+Killer+5+chartreuse+silver" },
+            { name: "Rapala Super Shad Rap (Perch)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Rapala+Super+Shad+Rap+perch" },
+            { name: "Johnson Silver Minnow Spoon 1oz (Gold)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Johnson+Silver+Minnow+1oz+gold" },
+            { name: "Live Sucker Minnow (8–10\")", type: "live", localBait: true },
+            { name: "Live Golden Shiner (6–8\")", type: "live", localBait: true },
+        ],
+        tempRange: [38, 75], seasonGrid: [1,1,2,2,1,1,0,0,1,2,2,1],
+        pattern: "Ambush hunting from weed edges. Prime zones: inside weed edge, fallen timber, dock lanes. Ice-out and October are peak trophy windows — big females gorging calories.",
+        bestSeason: "Mar–Apr (ice-out trophy window), Oct–Nov (fall aggression)",
+        regulations: "24\" minimum, 2/day (Lower Peninsula inland lakes), season April 26 – March 15",
+        tips: [
+            "Ice-out at Barnes Lake = biggest pike of the year. As soon as ice breaks, get a large sucker minnow in 4–6 ft of water near any cattail edge.",
+            "Use a 15 lb fluorocarbon leader — pike teeth will sever mono instantly and you'll lose the fish AND your rig.",
+            "October evening pike on the outside weed edge are as aggressive as it gets in Michigan freshwater — burn a big bucktail, no mercy."
+        ],
+        recipe: {
+            name: "Baked Northern Pike",
+            method: "Fillet carefully (score and remove Y-bones). Brush with butter, fresh lemon juice, dried dill, salt, and pepper. Bake at 400F for 12–15 minutes until flaky. Serve with roasted potatoes and green beans.",
+            tagline: "Y-bones out, flavor in. Dense, mild, and sweet — pike converts skeptics every time."
+        },
+        source: "Barnes Lake Club Annual Report; Michigan Sportsman Forum (multiple anglers)",
+        proLocked: false
+    },
+    {
+        name: "Crappie", emoji: "🐠",
+        technique: "Vertical jig with small tube jigs or paddle-tail swimbaits over deep brush piles and submerged timber. Use a flasher or sonar to locate suspended schools at 18–25 ft — match the depth exactly. Summer evenings: small Bobby Garland swimbait under a slip-float near dock edges at sunset.",
+        depth: "18–25ft (winter suspended), 4–10ft (spring pre-spawn), 12–20ft (summer)",
+        baits: [
+            { name: "Bobby Garland Baby Shad 2\" (Chartreuse/White)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Bobby+Garland+Baby+Shad+2+chartreuse+white" },
+            { name: "Northland Puppet Minnow 1/8oz (Glow/Chartreuse)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Northland+Puppet+Minnow+1/8+glow" },
+            { name: "Berkley PowerBait Crappie Nibble (White)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Berkley+PowerBait+Crappie+Nibble+white" },
+            { name: "Fathead Minnows (small)", type: "live", localBait: true },
+            { name: "Wax Worms", type: "live", localBait: true },
+        ],
+        tempRange: [45, 70], seasonGrid: [2,2,1,2,2,1,0,0,1,1,2,2],
+        pattern: "Barnes Lake Club stocks crappie actively (400 fish in Oct 2022). Stack over submerged brush piles and dock shadows. Suspend precisely at the depth schools are showing on sonar. Spring: push to 4–10 ft near east-side brush as water hits 58–62F.",
+        bestSeason: "Apr–May (pre-spawn staging), Nov–Mar (ice season)",
+        regulations: "No size limit, 25/day combined panfish (crappie + bluegill + sunfish), open year-round",
+        tips: [
+            "Barnes Lake Club stocked 400 crappie in October 2022 — those fish are now keeper-size (2025). Check brush pile edges and dock crib areas first.",
+            "Downsize to 1/64 oz jig with 2 lb fluorocarbon in clear water conditions. The fish can see 8 lb mono from below.",
+            "Best crappie window: the 90 minutes after sunset, especially in June when fish are shallow and aggressive around dock lights."
+        ],
+        recipe: {
+            name: "Crispy Panko Crappie Fillets",
+            method: "Dip fillets in egg wash, then seasoned panko breadcrumbs (Old Bay + garlic powder + black pepper). Pan-fry in 1/2\" vegetable oil at 350F, 2 min per side until golden. Drain on paper towels. Serve with tartar sauce and lemon.",
+            tagline: "Sweet, delicate, impossible to ruin. Crappie is Michigan's most beginner-friendly table fish."
+        },
+        source: "Barnes Lake Club Annual Report 2022-2023 (400 stocked 10/31/22)",
+        proLocked: false
+    },
+    {
+        name: "Bluegill", emoji: "🟡",
+        technique: "Small jigs tipped with waxworm or spike (maggot) under a spring bobber for ice. Open water: micro-jig under a slip-float near weed edges and dock shadows. Light-action ultralight rod with 4 lb test fluorocarbon. Bluegill are not equipment-shy — they are technique-shy.",
+        depth: "2–8ft (spawn/summer shallows), 8–20ft (summer midday/ice)",
+        baits: [
+            { name: "Northland Fire-Fly Jig 1/64oz (Glow Chartreuse)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Northland+Fire-Fly+Jig+1/64+glow+chartreuse" },
+            { name: "Clam Outdoors Tikka Mino 1/32oz (Glow Pink)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Clam+Tikka+Mino+glow+pink" },
+            { name: "Beetle Spin 1/16oz (Chartreuse)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Beetle+Spin+1/16+chartreuse" },
+            { name: "Wax Worms", type: "live", localBait: true },
+            { name: "Red Wiggler Worms (small pieces)", type: "live", localBait: true },
+        ],
+        tempRange: [60, 78], seasonGrid: [1,1,1,1,1,2,2,1,1,1,1,1],
+        pattern: "Dock shadows, weed edges, and shallow gravel beds during spawn. Summer: deeper midday (10–15 ft), shallower at dawn/dusk. Ice: 10–20 ft, suspend 1–2 ft off bottom. Schooling fish — where you find one, there are more.",
+        bestSeason: "Jun (spawn — most catchable), Aug–Sep (evening bite), Dec–Feb (ice)",
+        regulations: "No size limit, 25/day combined panfish (same pool as crappie), open year-round",
+        tips: [
+            "Michigan Sportsman Forum confirmed active bluegill through ice at Barnes Lake — glow teardrops with waxworms is the local go-to.",
+            "During spawn (June), walk the shoreline and sight-fish. Bluegill beds look like light-colored saucer depressions in 2–4 ft of water. Drop a worm right in the center.",
+            "Match the jig size to the bite: start at 1/32 oz, drop to 1/64 oz if they're short-striking. Smaller jig = more bites, always."
+        ],
+        recipe: {
+            name: "Classic Michigan Bluegill Fry",
+            method: "Gut and scale whole fish (or fillet larger ones). Coat in seasoned yellow cornmeal with black pepper and garlic salt. Fry in vegetable oil at 375F, 2–3 min per side until golden.",
+            tagline: "Old-school fish fry. This is how Michigan grandfathers fed families — and they were right."
+        },
+        source: "Barnes Lake Club fishing contest categories; Michigan Sportsman Forum",
+        proLocked: true
+    },
+    {
+        name: "Walleye", emoji: "👁️",
+        technique: "Night fishing with jig-and-minnow along depth breaks (15–25 ft). Troll crawler harnesses or Flicker Shads at 10–15 ft at dusk along depth contours. Ice: large sucker minnow on tip-up at 25–35 ft near the basin edge. Walleye see extremely well in low light — fish at dusk, after dark, or on overcast days.",
+        depth: "15–40ft (summer daytime), 5–15ft (dawn/dusk feeding), 20–35ft (ice)",
+        baits: [
+            { name: "Lindy Jig 1/4oz (Orange/Chartreuse) + Minnow", type: "lure", searchUrl: "https://www.amazon.com/s?k=Lindy+Jig+1/4+orange+chartreuse" },
+            { name: "Berkley Flicker Shad Size 5 (Perch/Fire Tiger)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Berkley+Flicker+Shad+5+perch+fire+tiger" },
+            { name: "Rapala Husky Jerk HJ-10 (Walleye Colors)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Rapala+Husky+Jerk+HJ-10+walleye" },
+            { name: "Live Golden Shiner (6–8\")", type: "live", localBait: true },
+            { name: "Live Fathead Minnows (3\")", type: "live", localBait: true },
+        ],
+        tempRange: [45, 68], seasonGrid: [1,1,1,1,2,0,0,0,1,2,2,1],
+        pattern: "Deep basin during day (30–40 ft), active movement to 10–15 ft at dusk and after dark. Barnes Lake Club stocks 500–895 walleye per year — 2022-23 stockings are approaching trophy size as of 2025.",
+        bestSeason: "Sep–Nov (fall aggression), May (post-spawn), ice season (tip-ups)",
+        regulations: "15\" minimum, 5/day, season April 26 – March 15 (no walleye possession in closed season)",
+        tips: [
+            "The Barnes Lake Club stocked 895 walleye in 2022-23. Fish stocked at 5–10\" are now 17–20\"+ in 2025. This is the best walleye window in the lake's managed history.",
+            "Walleye at Barnes Lake turn on hard after dark. Set up near the deep basin edge (20–25 ft) 30 min before sunset and fish until 10 PM. Bring a headlamp.",
+            "On cloudy days walleye move shallower all day long — overcast is your friend. Clear sunny days require waiting until after 8 PM."
+        ],
+        recipe: {
+            name: "Walleye Shore Lunch",
+            method: "Fillet and cube into 2\" chunks. Season with salt, pepper, garlic powder. Dip in egg, then crushed Ritz crackers + fresh parmesan. Pan-fry in butter over cast iron, 3 min per side. Squeeze of lemon. Eat immediately.",
+            tagline: "The best meal you will ever eat outdoors. Walleye is why God invented cast iron."
+        },
+        source: "Barnes Lake Club Annual Report 2022-2023 (500 + 895 stocked); Club fishing contest",
+        proLocked: true
+    },
+    {
+        name: "Yellow Perch", emoji: "🟠",
+        technique: "Vertical jigging from boat or kayak to locate schooling fish — use sonar or flasher. Ice: Swedish Pimple bounced off bottom, then a smaller teardrop jig 6 inches above on a dropper loop. Tipped with a perch eye from the first fish you catch. Perch school tight, so once you mark them, load up fast.",
+        depth: "15–25ft (summer/hard bottom), 5–12ft (spring/fall), 15–25ft (ice)",
+        baits: [
+            { name: "Bay de Noc Swedish Pimple 1/4oz (Gold)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Bay+de+Noc+Swedish+Pimple+1/4+gold" },
+            { name: "Northland Buck-Shot Rattle Spoon 1/4oz (Glow)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Northland+Buck-Shot+Rattle+Spoon+glow" },
+            { name: "Rapala Jigging Rap JR-3 (Perch)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Rapala+Jigging+Rap+JR-3+perch" },
+            { name: "Perch Eyes (from first catch)", type: "live", localBait: true },
+            { name: "Fathead Minnows (2\" small)", type: "live", localBait: true },
+        ],
+        tempRange: [45, 70], seasonGrid: [2,2,1,1,1,0,0,0,1,2,2,2],
+        pattern: "Schooling fish over sand/gravel bottom. Barnes Lake Club stocks 1,400+ perch annually — managed population. Schools roam, so vertical jigging to locate is key. Once located, fish aggressively before the school moves.",
+        bestSeason: "Oct–Nov (fall active), Jan–Feb (ice perch runs)",
+        regulations: "No size limit, 50/day (yellow perch has its own separate limit — NOT combined with panfish), open year-round",
+        tips: [
+            "Barnes Lake Club documented 1,400 yellow perch stocked in 2021-2022. Look for schools over the sand/gravel transition zones at 15–22 ft.",
+            "Tip the Swedish Pimple with a fresh perch eye from the first perch you catch. This is the #1 perch bait in Michigan — locals swear by it.",
+            "Perch school by size class — if you're catching small ones, move until you find the bigger school. They're nearby, just separate."
+        ],
+        recipe: {
+            name: "Beer-Battered Yellow Perch",
+            method: "Mix 1 cup flour, 1 cup light lager, salt, pepper, paprika into thin batter. Dip perch fillets. Fry at 375F, 2–3 min per side until golden. Serve with French fries and malt vinegar.",
+            tagline: "Michigan's finest eating fish, full stop. Sweet, firm, zero fishy smell — your family will beg you to fish more."
+        },
+        source: "Barnes Lake Club Annual Report 2021-2022 (1,400 stocked); Club fishing contest",
+        proLocked: true
+    },
+    {
+        name: "Smallmouth Bass", emoji: "🟤",
+        technique: "Drop shot with 6\" Roboworm at 15–22 ft along the break between the two deep basins. Ned rig on gravel/sand transition points. Carolina rig along depth transitions. Smallmouth at Barnes Lake concentrate on the 15–25 ft break between basins — go finesse, go deep.",
+        depth: "15–25ft (summer basin edges), 6–12ft (pre-spawn/fall), 4–10ft (spawn)",
+        baits: [
+            { name: "Z-Man TRD 2.75\" Ned Rig (Green Pumpkin)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Z-Man+TRD+2.75+Ned+Rig+green+pumpkin" },
+            { name: "Roboworm Straight Tail 6\" (Oxblood Light Red)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Roboworm+Straight+Tail+6+oxblood+light+red" },
+            { name: "4\" Berkley Power Tube (Crayfish Natural)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Berkley+Power+Tube+4+crayfish" },
+            { name: "Rapala Shad Rap SR-7 (Crawdad)", type: "lure", searchUrl: "https://www.amazon.com/s?k=Rapala+Shad+Rap+SR-7+crawdad" },
+        ],
+        tempRange: [58, 75], seasonGrid: [0,0,0,1,2,1,0,1,2,2,1,0],
+        pattern: "Concentrated at depth breaks between the two deep basins — gravel/sand ledges at 15–25 ft. Lower density than largemouth at this lake type, but present and catchable. Pre-spawn in May on gravel in 6–12 ft is the single best window.",
+        bestSeason: "May (pre-spawn gravel), Sep–Oct (fall aggressive feed)",
+        regulations: "14\" minimum, 5/day (combined largemouth + smallmouth), possession season May 24 – March 31",
+        tips: [
+            "Barnes Lake Club explicitly lists smallmouth as a fishing contest category — the fish are real, just less numerous than largemouth. Focus on the deep basin breaks.",
+            "Go finesse: 6 lb fluorocarbon, light wire hooks, small profile baits. Barnes Lake smallmouth see club fishing pressure — they're educated fish.",
+            "Pre-spawn (first two weeks of May) is your single best shot at smallmouth all year — they stage in 6–10 ft over any gravel you can find near depth breaks."
+        ],
+        recipe: {
+            name: "Smallmouth Bass Tacos",
+            method: "Cube fillets. Season with cumin, chili powder, garlic powder, lime juice, salt. Pan-sear in butter 4 min/side until golden. Serve in warm flour tortillas with shredded cabbage, sour cream, and chipotle salsa.",
+            tagline: "Firmer and sweeter than largemouth. Smallmouth tacos will make you forget you ever ate largemouth."
+        },
+        source: "Barnes Lake Club fishing contest; Barnes Lake Community Info Sheet June 2023",
+        proLocked: true
+    },
 ];
 
 const CATCH_LOG = [
@@ -1388,7 +1608,8 @@ function calculateSpeciesScores(baseScore, weather) {
     const t = weather ? weather.temperature : 32;
     return SPECIES_DB.map(sp => {
         let modifier = 0;
-        if (sp.name.includes('Bass')) modifier = t > 50 ? 10 : -5;
+        if (sp.name === 'Largemouth Bass') modifier = t > 50 ? 10 : -5;
+        else if (sp.name === 'Smallmouth Bass') modifier = t > 55 ? 8 : -8;
         if (sp.name.includes('Pike')) modifier = t < 60 ? 8 : -3;
         if (sp.name.includes('Crappie')) modifier = t < 55 ? 15 : 0;
         if (sp.name.includes('Walleye')) modifier = (t > 45 && t < 65) ? 12 : -5;
@@ -1682,12 +1903,8 @@ function renderForecast() {
     })();
 }
 
-function handleSpeciesCard(name, locked) {
-    if (locked) {
-        showToast('Upgrade to Pro to unlock ' + name + ' targeting');
-    } else {
-        openSpeciesDetail(name);
-    }
+function handleSpeciesCard(name) {
+    openSpeciesDetail(name);
 }
 
 function renderSpecies() {
@@ -1696,12 +1913,18 @@ function renderSpecies() {
     el.innerHTML = `
         <div style="padding:16px 4px 8px">
             <div style="font-family:var(--font-display);font-size:22px;font-weight:700">Species Guide</div>
-            <div style="font-size:12px;color:var(--text-secondary);margin-top:2px">AI-powered targeting for today's conditions</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Verified targeting data for Barnes Lake</div>
         </div>
-        ${species.map(sp => {
+        ${species.map(function(sp) {
             const c = getScoreHex(sp.score);
-            const locked = sp.premium;
-            return `<div class="glass" onclick="handleSpeciesCard('${sp.name}', ${locked})" style="padding:16px;margin-top:8px;${locked?'opacity:0.6':''}position:relative;overflow:hidden;cursor:pointer">
+            const locked = sp.proLocked;
+            const shortTech = sp.technique.length > 90 ? sp.technique.substring(0, 90) + '...' : sp.technique;
+            const depthShort = sp.depth.split('(')[0].trim();
+            const baitNames = (sp.baits || []).slice(0, 3).map(function(b) {
+                if (typeof b === 'string') return b;
+                return b.name.replace(/\s*\(.*\)/, '').split(' ').slice(0, 4).join(' ');
+            });
+            return `<div class="glass" onclick="openSpeciesDetail('${sp.name}')" style="padding:16px;margin-top:8px;${locked ? 'opacity:0.75;' : ''}position:relative;overflow:hidden;cursor:pointer">
                 ${locked ? '<div style="position:absolute;top:10px;right:10px"><span class="pro-badge"><svg viewBox="0 0 24 24"><path d="M2 4l3 12h14l3-12-5.5 5L12 2l-4.5 5L2 4z"/></svg> PRO</span></div>' : ''}
                 <div class="species-card">
                     <div class="species-avatar" style="background:${c}15;border:2px solid ${c}40">${sp.emoji}</div>
@@ -1710,11 +1933,12 @@ function renderSpecies() {
                             <span class="species-name">${sp.name}</span>
                             <span class="species-score-badge" style="color:${c};background:${c}15">${sp.score}</span>
                         </div>
-                        <div class="species-desc">${locked ? 'Upgrade to Pro for full species analysis...' : sp.technique}</div>
-                        ${!locked ? `<div class="species-tags">
-                            <span class="species-tag depth"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1"/></svg> ${sp.depth}</span>
-                            ${sp.baits.map(b => `<span class="species-tag bait">${b}</span>`).join('')}
-                        </div>` : ''}
+                        <div style="margin:3px 0"><span class="species-verified-badge">✓ Verified</span></div>
+                        <div class="species-desc">${shortTech}</div>
+                        <div class="species-tags">
+                            <span class="species-tag depth"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1"/></svg> ${depthShort}</span>
+                            ${baitNames.map(function(b) { return '<span class="species-tag bait">' + b + '</span>'; }).join('')}
+                        </div>
                     </div>
                 </div>
             </div>`;
@@ -2310,12 +2534,42 @@ function openSpeciesDetail(name) {
         return p.type + ' at ' + (sh%12||12) + ':' + sm.toString().padStart(2,'0') + ' ' + (sh<12?'AM':'PM');
     })() : 'See forecast';
 
+    // Bait chips — lures link to Amazon, live bait shows "find nearby"
+    const baitChipsHTML = (sp.baits || []).map(function(b) {
+        if (typeof b === 'string') return '<span class="species-bait-chip">' + b + '</span>';
+        if (b.type === 'live') {
+            return '<span class="species-bait-chip-live">🪱 ' + b.name + '<span style="font-size:9px;margin-left:4px;opacity:0.6">· find nearby</span></span>';
+        }
+        return '<a href="' + b.searchUrl + '" target="_blank" rel="noopener" class="species-bait-chip-lure">🛒 ' + b.name + '</a>';
+    }).join('');
+
+    // Seasonal calendar — 12-month grid
+    const monthLabels = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+    const grid = sp.seasonGrid || [0,0,0,0,0,0,0,0,0,0,0,0];
+    const gridHTML = monthLabels.map(function(m, i) {
+        const level = grid[i];
+        const cls = level === 2 ? 'season-prime' : level === 1 ? 'season-fair' : 'season-slow';
+        return '<div class="season-cell"><div class="season-cell-bar ' + cls + '"></div>' + m + '</div>';
+    }).join('');
+
+    // Pro tips list
+    const tipsHTML = (sp.tips || []).map(function(t, i) {
+        return '<div style="font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:8px;display:flex;gap:8px"><span style="color:var(--teal);font-weight:700;flex-shrink:0">' + (i + 1) + '.</span><span>' + t + '</span></div>';
+    }).join('');
+
+    // PRO banner for locked species
+    const proBanner = sp.proLocked ? '<div class="pro-info-banner">🔒 Real-time targeting intel and peak window alerts require Pro — but all the intel below is yours free.</div>' : '';
+
     document.getElementById('species-detail-content').innerHTML = `
+        ${proBanner}
         <div class="species-detail-hero">
             <div class="species-detail-avatar" style="background:${c}18;border:2px solid ${c}40">${sp.emoji}</div>
             <div>
                 <div class="species-detail-name">${sp.name}</div>
-                <span class="species-score-badge" style="color:${c};background:${c}18;font-size:15px">${sp.score || 50} — ${getScoreLabel(sp.score || 50)}</span>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap">
+                    <span class="species-score-badge" style="color:${c};background:${c}18;font-size:15px">${sp.score || 50} — ${getScoreLabel(sp.score || 50)}</span>
+                    <span class="species-verified-badge">✓ Verified</span>
+                </div>
             </div>
         </div>
         <div class="species-detail-section">
@@ -2323,17 +2577,48 @@ function openSpeciesDetail(name) {
             <div style="font-size:13px;color:var(--text-secondary);line-height:1.6">${sp.technique}</div>
         </div>
         <div class="species-detail-section">
-            <div class="species-detail-section-title">Top Baits & Lures</div>
-            <div class="species-bait-chips">${sp.baits.map(function(b){return `<span class="species-bait-chip">${b}</span>`;}).join('')}</div>
+            <div class="species-detail-section-title">Top Baits &amp; Lures</div>
+            <div style="display:flex;flex-wrap:wrap;margin:-3px">${baitChipsHTML}</div>
         </div>
         <div class="species-detail-section">
             <div class="species-detail-section-title">Targeting Info</div>
             <div class="glass" style="padding:0 12px">
                 <div class="species-info-row"><span class="species-info-label">Target Depth</span><span class="species-info-value">${sp.depth}</span></div>
-                <div class="species-info-row"><span class="species-info-label">Temperature</span><span class="species-info-value">${sp.temp}</span></div>
-                <div class="species-info-row"><span class="species-info-label">Pattern</span><span class="species-info-value">${sp.pattern}</span></div>
+                <div class="species-info-row"><span class="species-info-label">Water Temp</span><span class="species-info-value">${sp.tempRange ? sp.tempRange[0] + '–' + sp.tempRange[1] + '°F' : (sp.temp || '—')}</span></div>
+                <div class="species-info-row" style="align-items:flex-start;padding:10px 0"><span class="species-info-label" style="padding-top:1px">Pattern</span><span class="species-info-value" style="font-size:11px;text-align:right;max-width:62%;line-height:1.5">${sp.pattern || '—'}</span></div>
                 <div class="species-info-row"><span class="species-info-label">Best Time Today</span><span class="species-info-value" style="color:var(--gold)">${bestPeak}</span></div>
             </div>
+        </div>
+        <div class="species-detail-section">
+            <div class="species-detail-section-title">Seasonal Calendar</div>
+            <div class="season-grid">${gridHTML}</div>
+            <div style="display:flex;gap:14px;margin-top:8px;font-size:10px;color:var(--text-muted)">
+                <span><span style="display:inline-block;width:10px;height:6px;border-radius:3px;background:#22c55e;margin-right:4px;vertical-align:middle"></span>Prime</span>
+                <span><span style="display:inline-block;width:10px;height:6px;border-radius:3px;background:#f59e0b;margin-right:4px;vertical-align:middle"></span>Fair</span>
+                <span><span style="display:inline-block;width:10px;height:6px;border-radius:3px;background:rgba(255,255,255,0.1);margin-right:4px;vertical-align:middle"></span>Slow</span>
+            </div>
+        </div>
+        <div class="species-detail-section">
+            <div class="species-detail-section-title">Michigan Regulations</div>
+            <div class="glass" style="padding:12px 14px">
+                <div style="margin-bottom:8px"><span style="background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;color:#60a5fa">MI DNR 2025-26</span></div>
+                <div style="font-size:12px;color:var(--text-secondary);line-height:1.7">${sp.regulations || '—'}</div>
+            </div>
+        </div>
+        ${tipsHTML ? `<div class="species-detail-section">
+            <div class="species-detail-section-title">Pro Tips — Barnes Lake</div>
+            ${tipsHTML}
+        </div>` : ''}
+        ${sp.recipe ? `<div class="species-detail-section">
+            <div class="species-detail-section-title">Cooking</div>
+            <div class="recipe-card">
+                <div class="recipe-card-title">🍳 ${sp.recipe.name}</div>
+                <div class="recipe-method">${sp.recipe.method}</div>
+                <div class="recipe-tagline">"${sp.recipe.tagline}"</div>
+            </div>
+        </div>` : ''}
+        <div style="font-size:10px;color:var(--text-muted);margin-top:16px;padding-top:12px;border-top:1px solid var(--border)">
+            Species data verified via ${sp.source || 'Michigan DNR'}
         </div>
     `;
     document.getElementById('species-detail-overlay').classList.add('open');
