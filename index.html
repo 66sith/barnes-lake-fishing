@@ -1226,6 +1226,20 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
         </div>
     </div>
 
+    <!-- Recipe Book Panel -->
+    <div id="recipe-book-panel" class="bait-shop-panel">
+        <div class="bait-shop-sheet">
+            <div class="bait-shop-header">
+                <div>
+                    <div class="bait-shop-title">Cook Book</div>
+                    <div class="bait-shop-subtitle">Field-to-table recipes for every species</div>
+                </div>
+                <button class="bait-shop-close" onclick="closeRecipeBook()">✕</button>
+            </div>
+            <div id="recipe-book-content" class="bait-shop-content"></div>
+        </div>
+    </div>
+
     <!-- Request Lake Research Modal -->
     <div id="request-lake-modal" class="catch-modal">
         <div class="catch-sheet">
@@ -1988,8 +2002,16 @@ function renderSpecies() {
     const species = state.speciesScores.length ? state.speciesScores : calculateSpeciesScores(50, { temperature: 32 });
     el.innerHTML = `
         <div style="padding:16px 4px 8px">
-            <div style="font-family:var(--font-display);font-size:22px;font-weight:700">Species Guide</div>
-            <div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Verified targeting data for Barnes Lake</div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+                <div>
+                    <div style="font-family:var(--font-display);font-size:22px;font-weight:700">Species Guide</div>
+                    <div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Verified targeting data for ${state.currentLake.name}</div>
+                </div>
+                <button onclick="openRecipeBook()" style="display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:10px;background:rgba(212,168,67,0.1);border:1px solid rgba(212,168,67,0.2);color:var(--gold);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                    Cook Book
+                </button>
+            </div>
         </div>
         ${species.map(function(sp) {
             const c = getScoreHex(sp.score);
@@ -2969,6 +2991,49 @@ async function fetchBaitShops(lat, lng) {
 
 function closeBaitShopPanel() {
     document.getElementById('bait-shop-panel').classList.remove('open');
+}
+
+// ─── 6: Recipe Book ──────────────────────────────────────────────────────────
+async function openRecipeBook() {
+    const panel = document.getElementById('recipe-book-panel');
+    const content = document.getElementById('recipe-book-content');
+    panel.classList.add('open');
+    content.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-secondary)"><div style="font-size:24px;margin-bottom:8px">🍳</div><div>Loading recipes...</div></div>';
+
+    // Try API first, fall back to SPECIES_DB
+    let recipes = [];
+    try {
+        if (state.currentLake && state.currentLake.id) {
+            recipes = await apiGet('/recipes?lake_id=' + state.currentLake.id);
+        }
+        if (!recipes || !recipes.length) recipes = await apiGet('/recipes');
+    } catch(e) {
+        // offline: use SPECIES_DB
+        recipes = SPECIES_DB.filter(function(s) { return s.recipe; }).map(function(s) {
+            return { common_name: s.name, emoji: s.emoji, recipe_name: s.recipe.name, recipe_method: s.recipe.method, recipe_tagline: s.recipe.tagline };
+        });
+    }
+
+    if (!recipes || !recipes.length) {
+        content.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted)">No recipes available yet. Catch something first! 🎣</div>';
+        return;
+    }
+
+    content.innerHTML = '<div style="padding-bottom:4px">' + recipes.map(function(r, i) {
+        return '<div style="padding:18px 0;' + (i > 0 ? 'border-top:1px solid var(--border);' : '') + '">' +
+            '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">' +
+            '<span style="font-size:26px">' + (r.emoji || '🐟') + '</span>' +
+            '<div><div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--gold-light)">' + r.recipe_name + '</div>' +
+            '<div style="font-size:11px;color:var(--text-muted);margin-top:2px">' + r.common_name + '</div></div>' +
+            '</div>' +
+            '<div style="font-size:13px;color:var(--text-secondary);line-height:1.65;margin-bottom:8px">' + r.recipe_method + '</div>' +
+            '<div style="font-size:11px;font-style:italic;color:var(--text-muted);border-top:1px solid rgba(212,168,67,0.08);padding-top:8px">"' + r.recipe_tagline + '"</div>' +
+            '</div>';
+    }).join('') + '</div>';
+}
+
+function closeRecipeBook() {
+    document.getElementById('recipe-book-panel').classList.remove('open');
 }
 
 // ─── 5.6 Request Lake Research ────────────────────────────────────────────────
